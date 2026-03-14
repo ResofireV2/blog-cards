@@ -1,33 +1,21 @@
 {
-    "name": "walsgit/flarum-discussion-cards",
-    "description": "Output of discussions lists in form of cards",
+    "name": "resofire/blog-cards",
+    "description": "Display the discussion list as blog-style cards",
     "type": "flarum-extension",
-    "keywords": ["flarum", "extension", "discussion", "cards"],
+    "keywords": ["flarum", "extension", "discussion", "cards", "blog"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Wa!id",
-            "homepage": "https://discuss.flarum.org/u/Walid"
-        }
-    ],
-    "funding": [
-        {
-            "type": "website",
-            "url": "https://walsgit.github.io/Donations/"
+            "name": "Resofire"
         }
     ],
     "require": {
         "flarum/core": "^1.0",
         "flarum/tags": "^1.0"
     },
-    "autoload": {
-        "psr-4": {
-            "Walsgit\\Discussion\\Cards\\": "src/"
-        }
-    },
     "extra": {
         "flarum-extension": {
-            "title": "Flarum Discussion Сards",
+            "title": "Blog Cards",
             "category": "feature",
             "icon": {
                 "name": "fas fa-border-all",
@@ -37,7 +25,6 @@
         }
     },
     "support": {
-        "issues": "https://github.com/WalsGit/flarum-discussion-cards/issues",
-        "forum": "https://discuss.flarum.org/d/36343-flarum-discussion-cards"
+        "issues": "https://github.com/resofire/blog-cards/issues"
     }
 }
