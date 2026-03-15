@@ -276,6 +276,16 @@
   align-items: center;
   gap: 0.4rem;
   color: var(--muted-color);
+
+  // Unread — icon and count prominent (mirrors Flarum DiscussionListItem-count .unread)
+  .unread & {
+    color: var(--heading-color);
+  }
+
+  // Read — muted (mirrors Flarum DiscussionListItem-count default)
+  .read & {
+    color: var(--muted-color);
+  }
 }
 
 .cardRepliesIcon {
@@ -284,9 +294,19 @@
 
 .cardRepliesCount {
   font-size: 1rem;
-  font-weight: 800;
   line-height: 1;
-  color: var(--heading-color);
+
+  // Unread — bold and prominent
+  .unread & {
+    font-weight: 800;
+    color: var(--heading-color);
+  }
+
+  // Read — normal weight, muted
+  .read & {
+    font-weight: 400;
+    color: var(--muted-color);
+  }
 }
 
 .previewPost {
