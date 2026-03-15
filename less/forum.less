@@ -8,6 +8,7 @@
   background: var(--body-bg, white);
   overflow: hidden;
   position: relative;
+  min-height: 380px;
 
   &.read {
     h2, .Repcount {
@@ -174,7 +175,7 @@
 
 .cardImageWrap {
   width: 100%;
-  height: 180px;
+  height: 220px;
   overflow: hidden;
   flex-shrink: 0;
   border-radius: 0.5rem 0.5rem 0 0;
@@ -187,6 +188,11 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  transition: transform 0.4s ease;
+
+  .CardsListItem:hover & {
+    transform: scale(1.05);
+  }
 
   &--placeholder {
     height: 4px;
@@ -319,9 +325,9 @@
 }
 
 .cardTags {
-  margin: 0 15px;
+  margin: 0;
   display: block;
-  width: calc(~'100% - 30px');
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   overflow-x: auto;
