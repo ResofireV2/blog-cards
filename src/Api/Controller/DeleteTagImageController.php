@@ -27,16 +27,16 @@ class DeleteTagImageController implements RequestHandlerInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $tagId = (int) Arr::get($request->getQueryParams(), 'tagId');
-        $settingKey = 'resofire_blog_cards_tag_image_' . $tagId;
+        $tagId = (string) Arr::get($request->getQueryParams(), 'tagId');
 
-        $path = $this->settings->get($settingKey);
+        $map = json_decode($this->settings->get('resofire_blog_cards_tag_images', '{}'), true) ?: [];
 
-        if ($path && $this->uploadDir->exists($path)) {
-            $this->uploadDir->delete($path);
+        if (!empty($map[$tagId]) && $this->uploadDir->exists($map[$tagId])) {
+            $this->uploadDir->delete($map[$tagId]);
         }
 
-        $this->settings->set($settingKey, null);
+        unset($map[$tagId]);
+        $this->settings->set('resofire_blog_cards_tag_images', json_encode($map));
 
         return new JsonResponse(['url' => null]);
     }

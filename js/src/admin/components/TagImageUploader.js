@@ -14,9 +14,11 @@ export default class TagImageUploader extends Component {
 
   view() {
     const tag = this.attrs.tag;
+    if (!tag || typeof tag.id !== 'function' || !tag.id()) return <div />;
     const tagId = tag.id();
     // Always read fresh from forum attributes so updates are reflected immediately
-    const currentUrl = app.forum.attribute('resofireBlogCardsTagImage_' + tagId) || null;
+    const tagImages = app.forum.attribute('resofireBlogCardsTagImages') || {};
+    const currentUrl = tagImages[tagId] || null;
 
     return (
       <div className="TagImageUploader">
@@ -71,7 +73,9 @@ export default class TagImageUploader extends Component {
         serialize: (raw) => raw,
         body,
       }).then((r) => {
-        app.forum.pushData({ attributes: { ['resofireBlogCardsTagImage_' + tagId]: r.url } });
+        const tagImages = Object.assign({}, app.forum.attribute('resofireBlogCardsTagImages') || {});
+        tagImages[tagId] = r.url;
+        app.forum.pushData({ attributes: { resofireBlogCardsTagImages: tagImages } });
         this.loading = false;
         m.redraw();
       }).catch(() => {
@@ -92,7 +96,9 @@ export default class TagImageUploader extends Component {
       url: app.forum.attribute('apiUrl') + '/resofire/blog-cards/tag-image',
       params: { tagId },
     }).then(() => {
-      app.forum.pushData({ attributes: { ['resofireBlogCardsTagImage_' + tagId]: null } });
+      const tagImages = Object.assign({}, app.forum.attribute('resofireBlogCardsTagImages') || {});
+      delete tagImages[tagId];
+      app.forum.pushData({ attributes: { resofireBlogCardsTagImages: tagImages } });
       this.loading = false;
       m.redraw();
     }).catch(() => {

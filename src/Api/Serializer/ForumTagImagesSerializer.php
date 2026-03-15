@@ -8,10 +8,10 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 
 /**
- * Appends tag image URLs to the forum serializer payload so the JS
- * frontend can read them without additional API requests.
+ * Appends tag image URLs to the forum serializer payload.
  *
- * Attribute format: resofireBlogCardsTagImage_{tagId} => URL|null
+ * Reads a single JSON blob from settings — one DB read, one JSON decode.
+ * Serializes as a single attribute: resofireBlogCardsTagImages => {tagId: url, ...}
  */
 class ForumTagImagesSerializer
 {
@@ -26,15 +26,16 @@ class ForumTagImagesSerializer
 
     public function __invoke(ForumSerializer $serializer, $model, array $attributes): array
     {
-        // Find all tag image settings and expose them as forum attributes
-        $all = $this->settings->all();
+        $map = json_decode($this->settings->get('resofire_blog_cards_tag_images', '{}'), true) ?: [];
 
-        foreach ($all as $key => $value) {
-            if (str_starts_with($key, 'resofire_blog_cards_tag_image_') && $value) {
-                $tagId = substr($key, strlen('resofire_blog_cards_tag_image_'));
-                $attributes['resofireBlogCardsTagImage_' . $tagId] = $this->uploadDir->url($value);
+        $urls = [];
+        foreach ($map as $tagId => $filename) {
+            if ($filename) {
+                $urls[(string) $tagId] = $this->uploadDir->url($filename);
             }
         }
+
+        $attributes['resofireBlogCardsTagImages'] = $urls;
 
         return $attributes;
     }

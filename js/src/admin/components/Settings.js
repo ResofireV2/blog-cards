@@ -57,7 +57,9 @@ export default class Settings extends ExtensionPage {
               {this.tagsLoading
                 ? LoadingIndicator.component({ size: 'small', display: 'inline' })
                 : <div className="TagImageUploaderList">
-                    {app.store.all('tags').map((tag) => m(TagImageUploader, { key: tag.id(), tag }))}
+                    {app.store.all('tags')
+                      .filter((tag) => tag && typeof tag.id === 'function' && tag.id() && tag.name && tag.name())
+                      .map((tag) => m(TagImageUploader, { key: String(tag.id()), tag }))}
                   </div>}
             </div>
 

@@ -30,7 +30,7 @@ class UploadTagImageController implements RequestHandlerInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $tagId = (int) Arr::get($request->getQueryParams(), 'tagId');
+        $tagId = (string) Arr::get($request->getQueryParams(), 'tagId');
 
         $file = Arr::get($request->getUploadedFiles(), 'tagImage');
 
@@ -41,20 +41,19 @@ class UploadTagImageController implements RequestHandlerInterface
             })
             ->encode('jpg', 85);
 
-        $settingKey = 'resofire_blog_cards_tag_image_' . $tagId;
+        // Read existing map, delete old file for this tag if present
+        $map = json_decode($this->settings->get('resofire_blog_cards_tag_images', '{}'), true) ?: [];
 
-        // Delete old file if exists
-        $oldPath = $this->settings->get($settingKey);
-        if ($oldPath && $this->uploadDir->exists($oldPath)) {
-            $this->uploadDir->delete($oldPath);
+        if (!empty($map[$tagId]) && $this->uploadDir->exists($map[$tagId])) {
+            $this->uploadDir->delete($map[$tagId]);
         }
 
         $filename = 'blog-cards-tag-' . $tagId . '-' . Str::lower(Str::random(8)) . '.jpg';
         $this->uploadDir->put($filename, $image);
-        $this->settings->set($settingKey, $filename);
 
-        $url = $this->uploadDir->url($filename);
+        $map[$tagId] = $filename;
+        $this->settings->set('resofire_blog_cards_tag_images', json_encode($map));
 
-        return new JsonResponse(['url' => $url]);
+        return new JsonResponse(['url' => $this->uploadDir->url($filename)]);
     }
 }
