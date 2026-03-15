@@ -91,7 +91,7 @@ export default class RecalculateModal extends Modal {
   }
 
   run() {
-    const recalcUrl = app.forum.attribute('apiUrl') + '/resofire/participants/recalculate';
+    const recalcUrl = app.forum.attribute('apiUrl') + '/resofire/blog-cards/recalculate';
     const suppressAlert = { errorHandler: (e) => { throw e; } };
     let totalMs = 0;
 

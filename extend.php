@@ -61,12 +61,12 @@ return [
 
     (new Extend\Routes('api'))
         ->get(
-            '/resofire/participants/recalculate',
+            '/resofire/blog-cards/recalculate',
             'resofire.blog-cards.participants.recalculate.get',
             RecalculateParticipantsController::class
         )
         ->post(
-            '/resofire/participants/recalculate',
+            '/resofire/blog-cards/recalculate',
             'resofire.blog-cards.participants.recalculate',
             RecalculateParticipantsController::class
         ),
