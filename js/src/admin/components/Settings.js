@@ -14,7 +14,7 @@ export default class Settings extends ExtensionPage {
     app.tagList.load(['parent']).then(() => {
       // Use store.all() to avoid duplicates from multiple load() calls
       const tags = app.store.all('tags');
-      this.tags = tags.filter(Boolean).sort((a, b) => {
+      this.tags = tags.filter((t) => t && t.id && t.id() && t.name && t.name()).sort((a, b) => {
         const aPos = a.position();
         const bPos = b.position();
         if (aPos === null && bPos === null) return (b.discussionCount() || 0) - (a.discussionCount() || 0);
