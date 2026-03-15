@@ -1,5 +1,7 @@
 import app from 'flarum/forum/app';
-import { extend, override } from 'flarum/extend';
+import { extend as extendUtil, override } from 'flarum/extend';
+import { Model } from 'flarum/common/extenders';
+import Discussion from 'flarum/common/models/Discussion';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import ReplyComposer from 'flarum/forum/components/ReplyComposer';
@@ -12,13 +14,20 @@ import checkOverflowingTags from './helpers/checkOverflowingTags';
 import extCompat from './compat';
 import { compat } from '@flarum/core/forum';
 
+// Model extender — registers Discussion.prototype.participantPreview = hasMany(...)
+// Exported as 'extend' array so bootExtensions calls extender.extend(app, ...).
+// Copied exactly from discussion-participants extension pattern.
+export const extend = [
+  new Model(Discussion).hasMany('participantPreview'),
+];
+
 app.initializers.add('resofire/blog-cards', () => {
 
-  extend(DiscussionList.prototype, 'oncreate', checkOverflowingTags);
-  extend(DiscussionList.prototype, 'onupdate', checkOverflowingTags);
+  extendUtil(DiscussionList.prototype, 'oncreate', checkOverflowingTags);
+  extendUtil(DiscussionList.prototype, 'onupdate', checkOverflowingTags);
 
   // Include participantPreview on every load-more fetch
-  extend(DiscussionListState.prototype, 'requestParams', function(params) {
+  extendUtil(DiscussionListState.prototype, 'requestParams', function(params) {
     params.include.push('participantPreview');
   });
 

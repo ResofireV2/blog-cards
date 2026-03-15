@@ -9,7 +9,7 @@ export default class CardParticipants extends Component {
     const discussion = this.attrs.discussion;
     const preview = (discussion.participantPreview() || []).filter(Boolean);
 
-    if (!preview.length) return <span />;
+    if (!preview.length) return m('[');
 
     // Same overflow formula as discussion-participants:
     // total participants - 7 (1 OP shown by Flarum + 6 in our strip)
