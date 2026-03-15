@@ -7,7 +7,7 @@ export default class Settings extends ExtensionPage {
       <div className="BlogCardsSettings">
         <div className="container">
           <div className="BlogCardsSettings--content">
-            <div className="Section">
+            <div className="Section" style="margin-top: 1.5rem;">
               {this.buildSettingComponent({
                 type: 'switch',
                 setting: 'resofire_blog_cards_onIndexPage',
