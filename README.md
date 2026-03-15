@@ -1,53 +1,84 @@
-## Flarum Discussion Cards
+# Blog Cards for Flarum
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg) [![Latest Stable Version](https://img.shields.io/packagist/v/walsgit/flarum-discussion-cards.svg)](https://packagist.org/packages/walsgit/flarum-discussion-cards) [![Total Downloads](https://img.shields.io/packagist/dt/walsgit/flarum-discussion-cards.svg)](https://packagist.org/packages/walsgit/flarum-discussion-cards) [![Donate here](https://img.shields.io/badge/donate-here-%23008e97)](https://walsgit.github.io/Donations/)
+A [Flarum](https://flarum.org) extension by **Resofire** that displays discussions as blog-style cards, complete with hero images, participant avatars, read/unread states, and a moonlit alpine placeholder for posts without images.
 
-A [Flarum](https://flarum.org) extension (**Fork** of ``@Dem13n``'s [discussion-cards](https://github.com/Dem13n/discussion-cards)). Allows you to display discussions in the form of cards, the first image of the first post is used as a preview, if there are no images, a stub is displayed.
+---
 
-This *fork* adds ``new features`` where you can now set custom cards settings per tag page (different default image along with number and width of primary cards).
-On the ``index page`` (all discussions), if a discussion has multiple tags with their own custom image set, the displayed image will be chosen according to these priority rules:
-```
-1. The image of the the highest positioned child primary tag of the highest positioned parent primary tag
-2. The image of the highest positioned parent primary tag
-3. The image of the secondary tag with the lowest id
-4. The general default image
-```
-Also it changes how the setting to distinguish between read & unread discussion cards work: now the read discussions are filtred with a grayscale instead of the unread ones. As of `1.2.0` read discussion cards a no longer filtered with a grayscale but have just a lighter title and text.
+## Features
 
-### 3rd party extension support
-- `flarumite/simple-discussion-views` : show discussion view count on cards
-- As of version `1.1.0` added support for the `v17development/flarum-blog` extension. If activated, you can set to use the blog's extension images for blog posts' cards and/or their article summary as preview text on the cards.
-- As of version `1.2.0` added support for the `shebaoting/repost` extension. If activated, you can set it so that when you click on the card `title` of a discussion starting with a url, it will open that url, and clicking anywhere else on the card will open the discussion as usual.
-- As of version `1.3.0` added support for the `michaelbelgium/flarum-discussion-views` extension.
+### Card layout
+- Discussions are rendered as cards with a **hero image**, tag labels, title, excerpt, author, reply count, and a participant avatar strip
+- The hero image is extracted automatically from the first `<img>` tag in the first post — no manual configuration required
+- Cards without a post image display a built-in SVG landscape illustration as the placeholder
+- Cards respect Flarum's native **read/unread styles** — unread discussions show a bold title and prominent reply count; read discussions are visually receded using `--discussion-title-color`
 
-![Discussion Cards](https://i.postimg.cc/FsxNPWYk/flarum-ext-discussioncards-1.png)
+### Participant avatar strip
+- Each card displays up to **6 participant avatars** in a strip at the bottom, showing users who have replied to the discussion
+- Avatars are shown in chronological order of first post
+- An overflow badge (`+N`) appears when there are more than 7 total participants (6 repliers + the OP)
+- Clicking the overflow badge opens a **paginated participant modal** listing all participants with their avatars and usernames
+- The strip updates optimistically when the current user posts a reply, without requiring a page refresh
+- Participant data is maintained in a bounded preview table (`discussion_participant_previews`, max 6 rows per discussion) for efficient loading
 
-### Notes
-- Developed and tested on Flarum 1.8.7 then tested on 1.8.8.
-- Thanks to whomever suggested on Discord to use the tags selection component (sorry, we can no longer access the messages on Discord to mention them properly).
-- New settings page inspired by ``Friends of Flarum``'s [Best Answer](https://github.com/FriendsOfFlarum/best-answer) Extension.
-- Additional tags settings based on ``@askvortsov``'s [Discussion Templates](https://github.com/askvortsov1/flarum-discussion-templates) Extension.
-- Developped this with the help of AI (mainly ChatGPT, Cody & Gemini).
+### Admin settings
+| Setting | Description |
+|---|---|
+| **Use on Discussion List** | When enabled, cards appear on the main index page (`/`) as well as tag pages |
+| **Restrict to Tags** | Select specific tags to show cards on. If none are selected, cards appear on all tag pages |
+| **Full Width Cards** | When enabled, each card spans the full width instead of two per row. Full-width cards use a taller hero image (420px vs 250px) |
+
+### Tools
+The admin panel includes a **Recalculate Participants** button that rebuilds the participant preview table for all discussions. A chunked progress modal shows real-time progress and timing per batch. Run this once after installing on an existing forum.
+
+### Sidebar behaviour
+When viewing a discussion, Flarum shows a discussion list in the sidebar. Cards in the sidebar are automatically displayed **single column** with a reduced image height. Cards only appear in the sidebar when the discussion list is filtered to a tag that has cards enabled — the sidebar respects the same tag restrictions as the main list.
+
+---
 
 ## Installation
 
-Install with composer:
-
 ```sh
-composer require walsgit/flarum-discussion-cards
-```
-
-## Updating
-
-```sh
-composer update walsgit/flarum-discussion-cards
+composer require resofire/blog-cards
 php flarum migrate
 php flarum cache:clear
 ```
 
-## Links
+After installing on an existing forum with existing discussions, run the participant backfill:
 
-- [Packagist](https://packagist.org/packages/walsgit/flarum-discussion-cards)
-- [GitHub](https://github.com/walsgit/flarum-discussion-cards)
-- [Discuss](https://discuss.flarum.org/d/36343-flarum-discussion-cards)
-- [Donate](https://walsgit.github.io/Donations/)
+```sh
+php flarum participants:populate
+```
+
+Or use the **Recalculate Participants** button in the admin panel.
+
+---
+
+## Updating
+
+```sh
+composer update resofire/blog-cards
+php flarum migrate
+php flarum cache:clear
+```
+
+---
+
+## Compatibility
+
+- Requires **Flarum 1.0** or later
+- Requires **flarum/tags**
+- Compatible with **resofire/discussion-participants** — both extensions can be enabled simultaneously without conflict. Blog Cards is fully self-contained and does not require Discussion Participants to be installed.
+
+---
+
+## Technical notes
+
+- First post content is included in the discussion list API response to enable image extraction. The `DOMParser` result is cached on the discussion object for the session so parsing only runs once per discussion per page load.
+- Participant preview data is stored in a dedicated `discussion_participant_previews` table (max 6 rows per discussion) with a `participant_count` column on the discussions table. This means the list page never issues a `COUNT(DISTINCT)` subquery — all data is pre-computed at write time.
+- The extension keeps its preview table in sync automatically via post `Posted`, `Hidden`, `Restored`, and `Deleted` events.
+
+---
+
+## License
+
+MIT

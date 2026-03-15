@@ -20,10 +20,19 @@ export const extend = [
 
 app.initializers.add('resofire/blog-cards', () => {
 
-  // Cache forum attributes once — these only change on settings save (full page reload)
-  const onIndexPage = Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1;
-  const configuredTagIds = JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]');
-  const fullWidth = Number(app.forum.attribute('resofireBlogCardsFullWidth')) === 1;
+  // Forum attributes cached lazily on first render — app.forum is not available
+  // at initializer time, only after boot(). Values never change without a page reload.
+  let cachedSettings = null;
+  function getSettings() {
+    if (!cachedSettings) {
+      cachedSettings = {
+        onIndexPage: Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1,
+        configuredTagIds: JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]'),
+        fullWidth: Number(app.forum.attribute('resofireBlogCardsFullWidth')) === 1,
+      };
+    }
+    return cachedSettings;
+  }
 
   extendUtil(DiscussionList.prototype, 'oncreate', checkOverflowingTags);
   extendUtil(DiscussionList.prototype, 'onupdate', checkOverflowingTags);
@@ -36,6 +45,7 @@ app.initializers.add('resofire/blog-cards', () => {
   });
 
   override(DiscussionList.prototype, 'view', function (original) {
+    const { onIndexPage, configuredTagIds, fullWidth } = getSettings();
     const isIndex = app.current.matches(IndexPage);
     const state = this.attrs.state;
     let loading;
