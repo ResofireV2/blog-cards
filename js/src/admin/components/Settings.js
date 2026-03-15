@@ -15,6 +15,14 @@ export default class Settings extends ExtensionPage {
                 help: app.translator.trans('resofire_blog_cards.admin.settings.onIndexPage_help'),
               })}
             </div>
+            <div className="Section" style="margin-top: 1rem;">
+              {this.buildSettingComponent({
+                type: 'flarum-tags.select-tags',
+                setting: 'resofire_blog_cards_tagIds',
+                label: app.translator.trans('resofire_blog_cards.admin.settings.tagIds_label'),
+                help: app.translator.trans('resofire_blog_cards.admin.settings.tagIds_help'),
+              })}
+            </div>
             {this.submitButton()}
           </div>
         </div>

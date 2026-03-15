@@ -6,3 +6,5 @@ resofire_blog_cards:
     settings:
       onIndexPage_label: "Use on Discussion List"
       onIndexPage_help: "If enabled, the discussion list page will display cards."
+      tagIds_label: "Restrict to Tags"
+      tagIds_help: "Select tags to show cards on. If none are selected, cards appear on all tag pages."

@@ -38,25 +38,37 @@ app.initializers.add('resofire/blog-cards', () => {
       return <div className="DiscussionList">{m(Placeholder, { text })}</div>;
     }
 
-    // Show cards on tag pages always, on index page only when toggle is on
-    const showCards = !isIndex || onIndexPage;
+    // Determine if cards should show based on page and tag filter settings
+    const isTagPage = isIndex && !!m.route.param('tags');
+    const isMainIndex = isIndex && !m.route.param('tags');
 
-    if (showCards) {
-      return (
-        <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
-          <div className="DiscussionList-discussions flexCard">
-            {state.getPages().map((pg) => {
-              return pg.items.map((discussion) => {
-                return m(CardItem, { discussion });
-              });
-            })}
-          </div>
-          <div className="DiscussionList-loadMore">{loading}</div>
-        </div>
+    // If on main index, respect the toggle
+    if (isMainIndex && !onIndexPage) return original();
+
+    // If a tag filter is configured, only show cards on matching tag pages
+    const configuredTagIds = JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]');
+    if (configuredTagIds.length > 0 && isTagPage) {
+      const currentSlug = m.route.param('tags');
+      const currentTag = app.store.all('tags').find(
+        (t) => t.slug().localeCompare(currentSlug, undefined, { sensitivity: 'base' }) === 0
       );
+      if (!currentTag || !configuredTagIds.includes(currentTag.id())) {
+        return original();
+      }
     }
 
-    return original();
+    return (
+      <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
+        <div className="DiscussionList-discussions flexCard">
+          {state.getPages().map((pg) => {
+            return pg.items.map((discussion) => {
+              return m(CardItem, { discussion });
+            });
+          })}
+        </div>
+        <div className="DiscussionList-loadMore">{loading}</div>
+      </div>
+    );
   });
 
 }, -1);
