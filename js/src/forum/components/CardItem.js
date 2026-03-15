@@ -28,9 +28,7 @@ export default class CardItem extends Component {
     const unreadCount = discussion.unreadCount();
     const replyCount = discussion.replyCount() || 0;
 
-    const replyText = unreadCount
-      ? `${unreadCount} unread`
-      : `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
+    const displayCount = unreadCount || replyCount;
 
     const imageUrl = getFirstPostImage(discussion);
 
@@ -86,7 +84,7 @@ export default class CardItem extends Component {
             </span>
             <span className="cardReplies">
               {icon('fas fa-comment-alt', { className: 'cardRepliesIcon' })}
-              {replyText}
+              <strong className="cardRepliesCount">{displayCount}</strong>
             </span>
           </div>
 
