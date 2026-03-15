@@ -1,7 +1,6 @@
 import app from 'flarum/admin/app';
 import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
-import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 /**
  * Renders an upload/remove button for a single tag's default card image.
@@ -11,12 +10,13 @@ export default class TagImageUploader extends Component {
   oninit(vnode) {
     super.oninit(vnode);
     this.loading = false;
-    // Current URL comes from forum attributes serialized by ForumTagImagesSerializer
-    this.currentUrl = app.forum.attribute('resofireBlogCardsTagImage_' + this.attrs.tag.id()) || null;
   }
 
   view() {
     const tag = this.attrs.tag;
+    const tagId = tag.id();
+    // Always read fresh from forum attributes so updates are reflected immediately
+    const currentUrl = app.forum.attribute('resofireBlogCardsTagImage_' + tagId) || null;
 
     return (
       <div className="TagImageUploader">
@@ -25,14 +25,14 @@ export default class TagImageUploader extends Component {
           <strong>{tag.name()}</strong>
         </div>
 
-        {this.currentUrl ? (
+        {currentUrl ? (
           <div className="TagImageUploader-preview">
-            <img src={this.currentUrl} alt={tag.name()} />
+            <img src={currentUrl} alt={tag.name()} />
             <div className="TagImageUploader-actions">
               {Button.component({
                 className: 'Button Button--danger Button--flat',
                 loading: this.loading,
-                onclick: () => this.remove(),
+                onclick: () => this.remove(tagId),
               }, [app.icon('fas fa-trash'), ' Remove'])}
             </div>
           </div>
@@ -41,7 +41,7 @@ export default class TagImageUploader extends Component {
             {Button.component({
               className: 'Button',
               loading: this.loading,
-              onclick: () => this.upload(),
+              onclick: () => this.upload(tagId),
             }, [app.icon('fas fa-upload'), ' Upload Image'])}
           </div>
         )}
@@ -49,7 +49,7 @@ export default class TagImageUploader extends Component {
     );
   }
 
-  upload() {
+  upload(tagId) {
     if (this.loading) return;
 
     const $input = $('<input type="file" accept="image/*">');
@@ -67,13 +67,11 @@ export default class TagImageUploader extends Component {
       app.request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/resofire/blog-cards/tag-image',
-        params: { tagId: this.attrs.tag.id() },
+        params: { tagId },
         serialize: (raw) => raw,
         body,
       }).then((r) => {
-        this.currentUrl = r.url;
-        // Update the forum attribute so other components see it immediately
-        app.forum.pushData({ attributes: { ['resofireBlogCardsTagImage_' + this.attrs.tag.id()]: r.url } });
+        app.forum.pushData({ attributes: { ['resofireBlogCardsTagImage_' + tagId]: r.url } });
         this.loading = false;
         m.redraw();
       }).catch(() => {
@@ -83,7 +81,7 @@ export default class TagImageUploader extends Component {
     });
   }
 
-  remove() {
+  remove(tagId) {
     if (this.loading) return;
 
     this.loading = true;
@@ -92,10 +90,9 @@ export default class TagImageUploader extends Component {
     app.request({
       method: 'DELETE',
       url: app.forum.attribute('apiUrl') + '/resofire/blog-cards/tag-image',
-      params: { tagId: this.attrs.tag.id() },
+      params: { tagId },
     }).then(() => {
-      this.currentUrl = null;
-      app.forum.pushData({ attributes: { ['resofireBlogCardsTagImage_' + this.attrs.tag.id()]: null } });
+      app.forum.pushData({ attributes: { ['resofireBlogCardsTagImage_' + tagId]: null } });
       this.loading = false;
       m.redraw();
     }).catch(() => {

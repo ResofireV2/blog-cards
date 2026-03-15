@@ -11,8 +11,9 @@ export default class Settings extends ExtensionPage {
     this.tagsLoaded = false;
     this.tags = [];
 
-    app.tagList.load(['parent']).then((tags) => {
-      // Show all tags sorted: primary first, then children, then secondary
+    app.tagList.load(['parent']).then(() => {
+      // Use store.all() to avoid duplicates from multiple load() calls
+      const tags = app.store.all('tags');
       this.tags = tags.filter(Boolean).sort((a, b) => {
         const aPos = a.position();
         const bPos = b.position();
