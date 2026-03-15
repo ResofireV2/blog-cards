@@ -39,7 +39,7 @@ export default class CardItem extends Component {
       if (firstPost) {
         const html = firstPost.contentHtml() || '';
         const doc = new DOMParser().parseFromString(html, 'text/html');
-        excerpt = truncate((doc.body.textContent || '').trim().replace(/\s+/g, ' '), 120);
+        excerpt = truncate((doc.body.textContent || '').trim().replace(/\s+/g, ' '), 260);
       }
     } catch (e) {}
 
