@@ -46,7 +46,12 @@ export default class CardItem extends Component {
       <div
         key={discussion.id()}
         data-id={discussion.id()}
-        className={'CardsListItem Card' + (discussion.isHidden() ? ' Hidden' : '')}
+        className={
+          'CardsListItem Card'
+          + (discussion.isHidden() ? ' Hidden' : '')
+          + (discussion.isUnread() ? ' unread' : '')
+          + (discussion.isRead() ? ' read' : '')
+        }
       >
         {DiscussionControls.controls(discussion, this).toArray().length
           ? m(Dropdown, {

@@ -214,6 +214,18 @@
   line-height: 1.3;
   color: var(--heading-color);
   word-break: break-word;
+
+  // Read state — muted title, normal weight (mirrors Flarum DiscussionListItem)
+  .DiscussionList:not(.DiscussionList--searchResults) .read & {
+    color: var(--discussion-title-color);
+    font-weight: 400;
+  }
+
+  // Unread state — bold title (mirrors Flarum DiscussionListItem)
+  .DiscussionList:not(.DiscussionList--searchResults) .unread & {
+    font-weight: 700;
+    color: var(--heading-color);
+  }
 }
 
 .cardExcerpt {
@@ -226,6 +238,11 @@
   -webkit-box-orient: vertical;
   line-clamp: 3;
   overflow: hidden;
+
+  // Read state — further muted
+  .read & {
+    color: var(--discussion-title-color);
+  }
 }
 
 .cardFooter {
