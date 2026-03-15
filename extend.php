@@ -3,6 +3,9 @@
 use Flarum\Extend;
 use Flarum\Api\Controller\ListDiscussionsController;
 use Resofire\BlogCards\Api\Controller\ListDiscussionParticipantsController;
+use Resofire\BlogCards\Api\Controller\UploadTagImageController;
+use Resofire\BlogCards\Api\Controller\DeleteTagImageController;
+use Resofire\BlogCards\Api\Serializer\ForumTagImagesSerializer;
 use Resofire\BlogCards\Api\Controller\RecalculateParticipantsController;
 use Resofire\BlogCards\Console\PopulateParticipantPreviews;
 use Resofire\BlogCards\Listener\UpdateParticipantPreview;
@@ -66,6 +69,23 @@ return [
             'resofire.participants.recalculate',
             RecalculateParticipantsController::class
         ),
+
+    // Tag image upload/delete routes
+    (new Extend\Routes('api'))
+        ->post(
+            '/resofire/blog-cards/tag-image',
+            'resofire.blog-cards.tag-image.upload',
+            UploadTagImageController::class
+        )
+        ->delete(
+            '/resofire/blog-cards/tag-image',
+            'resofire.blog-cards.tag-image.delete',
+            DeleteTagImageController::class
+        ),
+
+    // Serialize tag image URLs into the forum payload
+    (new Extend\ApiSerializer(\Flarum\Api\Serializer\ForumSerializer::class))
+        ->attributes(ForumTagImagesSerializer::class),
 
     // Console command for backfill
     (new Extend\Console())
