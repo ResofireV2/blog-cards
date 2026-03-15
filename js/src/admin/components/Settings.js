@@ -8,21 +8,10 @@ import TagImageUploader from './TagImageUploader';
 export default class Settings extends ExtensionPage {
   oninit(vnode) {
     super.oninit(vnode);
-    this.tagsLoaded = false;
-    this.tags = [];
+    this.tagsLoading = true;
 
     app.tagList.load(['parent']).then(() => {
-      // Use store.all() to avoid duplicates from multiple load() calls
-      const tags = app.store.all('tags');
-      this.tags = tags.filter((t) => t && t.id && t.id() && t.name && t.name()).sort((a, b) => {
-        const aPos = a.position();
-        const bPos = b.position();
-        if (aPos === null && bPos === null) return (b.discussionCount() || 0) - (a.discussionCount() || 0);
-        if (bPos === null) return -1;
-        if (aPos === null) return 1;
-        return aPos - bPos;
-      });
-      this.tagsLoaded = true;
+      this.tagsLoading = false;
       m.redraw();
     });
   }
@@ -65,11 +54,11 @@ export default class Settings extends ExtensionPage {
             <div className="Section" style="margin-top: 2rem;">
               <h3>{app.translator.trans('resofire_blog_cards.admin.tag_images_heading')}</h3>
               <p className="helpText">{app.translator.trans('resofire_blog_cards.admin.tag_images_help')}</p>
-              {this.tagsLoaded
-                ? <div className="TagImageUploaderList">
-                    {this.tags.map((tag) => m(TagImageUploader, { key: tag.id(), tag }))}
-                  </div>
-                : LoadingIndicator.component({ size: 'small', display: 'inline' })}
+              {this.tagsLoading
+                ? LoadingIndicator.component({ size: 'small', display: 'inline' })
+                : <div className="TagImageUploaderList">
+                    {app.store.all('tags').map((tag) => m(TagImageUploader, { key: tag.id(), tag }))}
+                  </div>}
             </div>
 
             <div className="Section" style="margin-top: 2rem;">

@@ -14,7 +14,6 @@ export default class TagImageUploader extends Component {
 
   view() {
     const tag = this.attrs.tag;
-    if (!tag || !tag.id || !tag.id()) return <div />;
     const tagId = tag.id();
     // Always read fresh from forum attributes so updates are reflected immediately
     const currentUrl = app.forum.attribute('resofireBlogCardsTagImage_' + tagId) || null;
