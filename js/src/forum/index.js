@@ -55,10 +55,27 @@ app.initializers.add('resofire/blog-cards', () => {
 
     const isTagPage = isIndex && !!m.route.param('tags');
     const isMainIndex = isIndex && !m.route.param('tags');
+    const isDiscussionPage = !isIndex;
 
     if (isMainIndex && !onIndexPage) return original();
 
     const configuredTagIds = JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]');
+
+    // On DiscussionPage sidebar: use the discussion list's own params to determine
+    // which tag is active, same logic as the tag filter check below
+    if (isDiscussionPage) {
+      const discussionTagSlug = state.params && state.params.tags;
+      if (!discussionTagSlug) return original();
+      if (configuredTagIds.length > 0) {
+        const currentTag = app.store.all('tags').find(
+          (t) => t.slug().localeCompare(discussionTagSlug, undefined, { sensitivity: 'base' }) === 0
+        );
+        if (!currentTag || !configuredTagIds.includes(currentTag.id())) {
+          return original();
+        }
+      }
+    }
+
     if (configuredTagIds.length > 0 && isTagPage) {
       const currentSlug = m.route.param('tags');
       const currentTag = app.store.all('tags').find(
