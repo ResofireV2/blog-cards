@@ -23,6 +23,14 @@ export default class Settings extends ExtensionPage {
                 help: app.translator.trans('resofire_blog_cards.admin.settings.tagIds_help'),
               })}
             </div>
+            <div className="Section" style="margin-top: 1rem;">
+              {this.buildSettingComponent({
+                type: 'switch',
+                setting: 'resofire_blog_cards_fullWidth',
+                label: app.translator.trans('resofire_blog_cards.admin.settings.fullWidth_label'),
+                help: app.translator.trans('resofire_blog_cards.admin.settings.fullWidth_help'),
+              })}
+            </div>
             {this.submitButton()}
           </div>
         </div>

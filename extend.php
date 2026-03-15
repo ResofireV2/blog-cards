@@ -18,7 +18,9 @@ return [
         ->serializeToForum('resofireBlogCardsOnIndexPage', 'resofire_blog_cards_onIndexPage')
         ->default('resofire_blog_cards_onIndexPage', 0)
         ->serializeToForum('resofireBlogCardsTagIds', 'resofire_blog_cards_tagIds')
-        ->default('resofire_blog_cards_tagIds', '[]'),
+        ->default('resofire_blog_cards_tagIds', '[]')
+        ->serializeToForum('resofireBlogCardsFullWidth', 'resofire_blog_cards_fullWidth')
+        ->default('resofire_blog_cards_fullWidth', 0),
 
     (new Extend\ApiController(ListDiscussionsController::class))
         ->addInclude('firstPost'),

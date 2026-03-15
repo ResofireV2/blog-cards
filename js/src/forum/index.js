@@ -57,9 +57,11 @@ app.initializers.add('resofire/blog-cards', () => {
       }
     }
 
+    const fullWidth = Number(app.forum.attribute('resofireBlogCardsFullWidth')) === 1;
+
     return (
       <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
-        <div className="DiscussionList-discussions flexCard">
+        <div className={'DiscussionList-discussions flexCard' + (fullWidth ? ' flexCard--full' : '')}>
           {state.getPages().map((pg) => {
             return pg.items.map((discussion) => {
               return m(CardItem, { discussion });
