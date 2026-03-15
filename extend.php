@@ -2,7 +2,6 @@
 
 use Flarum\Extend;
 use Flarum\Api\Controller\ListDiscussionsController;
-use Resofire\BlogCards\Api\Controller\ListDiscussionParticipantsController;
 use Resofire\BlogCards\Api\Controller\RecalculateParticipantsController;
 use Resofire\BlogCards\Console\PopulateParticipantPreviews;
 use Resofire\BlogCards\Listener\UpdateParticipantPreview;
@@ -49,18 +48,13 @@ return [
 
     (new Extend\Routes('api'))
         ->get(
-            '/discussions/{id}/participants',
-            'resofire.discussions.participants',
-            ListDiscussionParticipantsController::class
-        )
-        ->get(
             '/resofire/participants/recalculate',
-            'resofire.participants.recalculate.get',
+            'resofire.blog-cards.participants.recalculate.get',
             RecalculateParticipantsController::class
         )
         ->post(
             '/resofire/participants/recalculate',
-            'resofire.participants.recalculate',
+            'resofire.blog-cards.participants.recalculate',
             RecalculateParticipantsController::class
         ),
 
