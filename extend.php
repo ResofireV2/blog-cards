@@ -25,11 +25,6 @@ return [
         ->serializeToForum('resofireBlogCardsFullWidth', 'resofire_blog_cards_fullWidth')
         ->default('resofire_blog_cards_fullWidth', 0),
 
-    (new Extend\ApiController(ListDiscussionsController::class))
-        ->addInclude('firstPost')
-        ->addInclude('participantPreview')
-        ->load(['participantPreview']),
-
     (new Extend\Model(\Flarum\Discussion\Discussion::class))
         ->relationship('participantPreview', function (\Flarum\Discussion\Discussion $discussion) {
             return $discussion
@@ -45,6 +40,24 @@ return [
 
     (new Extend\ApiSerializer(\Flarum\Api\Serializer\DiscussionSerializer::class))
         ->hasMany('participantPreview', \Flarum\Api\Serializer\UserSerializer::class),
+
+    (new Extend\ApiController(ListDiscussionsController::class))
+        ->addInclude('firstPost')
+        ->addInclude('participantPreview')
+        ->load(['participantPreview'])
+        ->prepareDataForSerialization(function ($controller, $data, $request, $document) {
+            // Filter null users from participantPreview to prevent JS store crash
+            // when a participant user has been deleted from the database.
+            foreach ($data as $discussion) {
+                if ($discussion->relationLoaded('participantPreview')) {
+                    $discussion->setRelation(
+                        'participantPreview',
+                        $discussion->participantPreview->filter(fn($user) => $user !== null)
+                    );
+                }
+            }
+        }),
+
 
     (new Extend\Routes('api'))
         ->get(

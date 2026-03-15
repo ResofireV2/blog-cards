@@ -7,7 +7,13 @@ import ParticipantsModal from './ParticipantsModal';
 export default class CardParticipants extends Component {
   view() {
     const discussion = this.attrs.discussion;
-    const preview = (discussion.participantPreview() || []).filter(Boolean);
+    let preview = [];
+    try {
+      const result = discussion.participantPreview ? discussion.participantPreview() : false;
+      preview = (result || []).filter(Boolean);
+    } catch (e) {
+      return m('[');
+    }
 
     if (!preview.length) return m('[');
 
