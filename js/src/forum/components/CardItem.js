@@ -4,6 +4,7 @@ import craftTags from '../utils/craftTags';
 import humanTime from 'flarum/common/utils/humanTime';
 import icon from 'flarum/common/helpers/icon';
 import username from 'flarum/common/helpers/username';
+import avatar from 'flarum/common/helpers/avatar';
 import Dropdown from 'flarum/common/components/Dropdown';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Link from 'flarum/common/components/Link';
@@ -28,10 +29,21 @@ export default class CardItem extends Component {
     const replyCount = discussion.replyCount() || 0;
 
     const replyText = unreadCount
-      ? app.translator.trans('resofire_blog_cards.forum.unreadReplies', { count: unreadCount })
-      : app.translator.trans('resofire_blog_cards.forum.replies', { count: replyCount });
+      ? `${unreadCount} unread`
+      : `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
 
     const imageUrl = getFirstPostImage(discussion);
+
+    // Extract plain text excerpt from first post
+    let excerpt = '';
+    try {
+      const firstPost = discussion.firstPost();
+      if (firstPost) {
+        const html = firstPost.contentHtml() || '';
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        excerpt = truncate((doc.body.textContent || '').trim().replace(/\s+/g, ' '), 120);
+      }
+    } catch (e) {}
 
     return (
       <div
@@ -40,40 +52,44 @@ export default class CardItem extends Component {
         className={'CardsListItem Card' + (discussion.isHidden() ? ' Hidden' : '')}
       >
         {DiscussionControls.controls(discussion, this).toArray().length
-          ? m(
-              Dropdown,
-              {
-                icon: 'fas fa-ellipsis-v',
-                className: 'DiscussionListItem-controls',
-                buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
-              },
-              DiscussionControls.controls(discussion, this).toArray()
-            )
+          ? m(Dropdown, {
+              icon: 'fas fa-ellipsis-v',
+              className: 'DiscussionListItem-controls',
+              buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+            }, DiscussionControls.controls(discussion, this).toArray())
           : ''}
 
         <Link href={app.route.discussion(discussion, jumpTo)} className="cardLink">
-          {imageUrl
-            ? <div className="cardImage" style={{ backgroundImage: `url(${imageUrl})` }} aria-hidden="true" />
-            : <div className="cardImage cardImage--placeholder" aria-hidden="true" />}
 
-          {craftBadges(discussion.badges().toArray())}
-
-          <div className="cardTags">{craftTags(discussion.tags())}</div>
-
-          <div className="cardTitle">
-            <h2 title={discussion.title()} className="title">
-              {truncate(discussion.title(), 80)}
-            </h2>
+          <div className="cardImageWrap">
+            {imageUrl
+              ? <div className="cardImage" style={{ backgroundImage: `url(${imageUrl})` }} aria-hidden="true" />
+              : <div className="cardImage cardImage--placeholder" aria-hidden="true" />}
           </div>
 
-          <div className="cardMeta">
-            <span className="cardAuthor">{username(discussion.user())}</span>
-            <span className="cardDate">{humanTime(discussion.createdAt())}</span>
+          <div className="cardBody">
+            {craftBadges(discussion.badges().toArray())}
+
+            <div className="cardTags">{craftTags(discussion.tags())}</div>
+
+            <h2 className="cardTitle" title={discussion.title()}>
+              {truncate(discussion.title(), 80)}
+            </h2>
+
+            {excerpt ? <p className="cardExcerpt">{excerpt}</p> : ''}
+          </div>
+
+          <div className="cardFooter">
+            <span className="cardAuthor">
+              {avatar(discussion.user(), { className: 'cardAvatar' })}
+              {username(discussion.user())}
+            </span>
             <span className="cardReplies">
-              {icon('fas fa-comment', { className: 'labelIcon' })}
+              {icon('fas fa-comment-alt', { className: 'cardRepliesIcon' })}
               {replyText}
             </span>
           </div>
+
         </Link>
       </div>
     );
