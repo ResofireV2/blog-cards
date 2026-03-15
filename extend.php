@@ -2,7 +2,6 @@
 
 use Flarum\Extend;
 use Flarum\Api\Controller\ListDiscussionsController;
-use Resofire\BlogCards\Api\IncludeFirstPost;
 
 return [
     (new Extend\Frontend('forum'))

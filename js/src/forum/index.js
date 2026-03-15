@@ -17,6 +17,7 @@ app.initializers.add('resofire/blog-cards', () => {
 
   override(DiscussionList.prototype, 'view', function (original) {
     const onIndexPage = Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1;
+    const isIndex = app.current.matches(IndexPage);
     const state = this.attrs.state;
     let loading;
 
@@ -37,7 +38,10 @@ app.initializers.add('resofire/blog-cards', () => {
       return <div className="DiscussionList">{m(Placeholder, { text })}</div>;
     }
 
-    if (app.current.matches(IndexPage) && onIndexPage) {
+    // Show cards on tag pages always, on index page only when toggle is on
+    const showCards = !isIndex || onIndexPage;
+
+    if (showCards) {
       return (
         <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
           <div className="DiscussionList-discussions flexCard">
