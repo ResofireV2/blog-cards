@@ -20,6 +20,11 @@ export const extend = [
 
 app.initializers.add('resofire/blog-cards', () => {
 
+  // Cache forum attributes once — these only change on settings save (full page reload)
+  const onIndexPage = Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1;
+  const configuredTagIds = JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]');
+  const fullWidth = Number(app.forum.attribute('resofireBlogCardsFullWidth')) === 1;
+
   extendUtil(DiscussionList.prototype, 'oncreate', checkOverflowingTags);
   extendUtil(DiscussionList.prototype, 'onupdate', checkOverflowingTags);
 
@@ -31,7 +36,6 @@ app.initializers.add('resofire/blog-cards', () => {
   });
 
   override(DiscussionList.prototype, 'view', function (original) {
-    const onIndexPage = Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1;
     const isIndex = app.current.matches(IndexPage);
     const state = this.attrs.state;
     let loading;
@@ -59,8 +63,6 @@ app.initializers.add('resofire/blog-cards', () => {
 
     if (isMainIndex && !onIndexPage) return original();
 
-    const configuredTagIds = JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]');
-
     // On DiscussionPage sidebar: use the discussion list's own params to determine
     // which tag is active, same logic as the tag filter check below
     if (isDiscussionPage) {
@@ -85,8 +87,6 @@ app.initializers.add('resofire/blog-cards', () => {
         return original();
       }
     }
-
-    const fullWidth = Number(app.forum.attribute('resofireBlogCardsFullWidth')) === 1;
 
     return (
       <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
