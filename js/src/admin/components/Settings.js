@@ -1,21 +1,9 @@
 import app from 'flarum/admin/app';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
-import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import RecalculateModal from './RecalculateModal';
-import TagImageUploader from './TagImageUploader';
 
 export default class Settings extends ExtensionPage {
-  oninit(vnode) {
-    super.oninit(vnode);
-    this.tagsLoading = true;
-
-    app.tagList.load(['parent']).then(() => {
-      this.tagsLoading = false;
-      m.redraw();
-    });
-  }
-
   content() {
     return (
       <div className="BlogCardsSettings">
@@ -50,18 +38,6 @@ export default class Settings extends ExtensionPage {
             </div>
 
             {this.submitButton()}
-
-            <div className="Section" style="margin-top: 2rem;">
-              <h3>{app.translator.trans('resofire_blog_cards.admin.tag_images_heading')}</h3>
-              <p className="helpText">{app.translator.trans('resofire_blog_cards.admin.tag_images_help')}</p>
-              {this.tagsLoading
-                ? LoadingIndicator.component({ size: 'small', display: 'inline' })
-                : <div className="TagImageUploaderList">
-                    {app.store.all('tags')
-                      .filter((tag) => tag && typeof tag.id === 'function' && tag.id() && tag.name && tag.name())
-                      .map((tag) => m(TagImageUploader, { key: String(tag.id()), tag }))}
-                  </div>}
-            </div>
 
             <div className="Section" style="margin-top: 2rem;">
               <h3>{app.translator.trans('resofire_blog_cards.admin.tools_heading')}</h3>
