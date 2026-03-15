@@ -8,6 +8,7 @@ import Dropdown from 'flarum/common/components/Dropdown';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Link from 'flarum/common/components/Link';
 import { truncate } from 'flarum/common/utils/string';
+import getFirstPostImage from '../utils/getFirstPostImage';
 
 export default class CardItem extends Component {
   oninit(vnode) {
@@ -30,6 +31,8 @@ export default class CardItem extends Component {
       ? app.translator.trans('resofire_blog_cards.forum.unreadReplies', { count: unreadCount })
       : app.translator.trans('resofire_blog_cards.forum.replies', { count: replyCount });
 
+    const imageUrl = getFirstPostImage(discussion);
+
     return (
       <div
         key={discussion.id()}
@@ -49,6 +52,10 @@ export default class CardItem extends Component {
           : ''}
 
         <Link href={app.route.discussion(discussion, jumpTo)} className="cardLink">
+          {imageUrl
+            ? <div className="cardImage" style={{ backgroundImage: `url(${imageUrl})` }} aria-hidden="true" />
+            : <div className="cardImage cardImage--placeholder" aria-hidden="true" />}
+
           {craftBadges(discussion.badges().toArray())}
 
           <div className="cardTags">{craftTags(discussion.tags())}</div>

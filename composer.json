@@ -13,6 +13,11 @@
         "flarum/core": "^1.0",
         "flarum/tags": "^1.0"
     },
+    "autoload": {
+        "psr-4": {
+            "Resofire\\BlogCards\\": "src/"
+        }
+    },
     "extra": {
         "flarum-extension": {
             "title": "Blog Cards",

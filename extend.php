@@ -1,6 +1,8 @@
 <?php
 
 use Flarum\Extend;
+use Flarum\Api\Controller\ListDiscussionsController;
+use Resofire\BlogCards\Api\IncludeFirstPost;
 
 return [
     (new Extend\Frontend('forum'))
@@ -16,4 +18,7 @@ return [
     (new Extend\Settings())
         ->serializeToForum('resofireBlogCardsOnIndexPage', 'resofire_blog_cards_onIndexPage')
         ->default('resofire_blog_cards_onIndexPage', 0),
+
+    (new Extend\ApiController(ListDiscussionsController::class))
+        ->addInclude('firstPost'),
 ];
