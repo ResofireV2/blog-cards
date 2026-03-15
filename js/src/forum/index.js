@@ -1,6 +1,8 @@
 import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/extend';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
+import DiscussionListState from 'flarum/forum/states/DiscussionListState';
+import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Placeholder from 'flarum/common/components/Placeholder';
@@ -14,6 +16,11 @@ app.initializers.add('resofire/blog-cards', () => {
 
   extend(DiscussionList.prototype, 'oncreate', checkOverflowingTags);
   extend(DiscussionList.prototype, 'onupdate', checkOverflowingTags);
+
+  // Include participantPreview on every load-more fetch
+  extend(DiscussionListState.prototype, 'requestParams', function(params) {
+    params.include.push('participantPreview');
+  });
 
   override(DiscussionList.prototype, 'view', function (original) {
     const onIndexPage = Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1;
@@ -38,14 +45,11 @@ app.initializers.add('resofire/blog-cards', () => {
       return <div className="DiscussionList">{m(Placeholder, { text })}</div>;
     }
 
-    // Determine if cards should show based on page and tag filter settings
     const isTagPage = isIndex && !!m.route.param('tags');
     const isMainIndex = isIndex && !m.route.param('tags');
 
-    // If on main index, respect the toggle
     if (isMainIndex && !onIndexPage) return original();
 
-    // If a tag filter is configured, only show cards on matching tag pages
     const configuredTagIds = JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]');
     if (configuredTagIds.length > 0 && isTagPage) {
       const currentSlug = m.route.param('tags');
@@ -71,6 +75,57 @@ app.initializers.add('resofire/blog-cards', () => {
         <div className="DiscussionList-loadMore">{loading}</div>
       </div>
     );
+  });
+
+  // Optimistic avatar append after replying — copied exactly from discussion-participants
+  override(ReplyComposer.prototype, 'onsubmit', function(original) {
+    const discussion = this.attrs.discussion;
+    const discussionId = String(discussion.id());
+    const currentUser = app.session.user;
+
+    if (!currentUser) {
+      original();
+      return;
+    }
+
+    const currentUserId = String(currentUser.id());
+    const originalCreateRecord = app.store.createRecord.bind(app.store);
+
+    app.store.createRecord = function(type, data) {
+      app.store.createRecord = originalCreateRecord;
+      const record = originalCreateRecord(type, data);
+
+      if (type === 'posts') {
+        const originalSave = record.save.bind(record);
+        record.save = function(saveData) {
+          return originalSave(saveData).then(function(post) {
+            const disc = app.store.getById('discussions', discussionId);
+            if (!disc) return post;
+
+            const preview = (disc.participantPreview() || []).filter(Boolean);
+            if (preview.length >= 6) return post;
+
+            const alreadyIn = preview.some((u) => String(u.id()) === currentUserId);
+            if (alreadyIn) return post;
+
+            const rel = disc.data.relationships = disc.data.relationships || {};
+            rel.participantPreview = rel.participantPreview || { data: [] };
+            if (!Array.isArray(rel.participantPreview.data)) {
+              rel.participantPreview.data = [];
+            }
+            rel.participantPreview.data.push({ type: 'users', id: currentUserId });
+            disc.freshness = new Date();
+            m.redraw();
+
+            return post;
+          });
+        };
+      }
+
+      return record;
+    };
+
+    original();
   });
 
 }, -1);

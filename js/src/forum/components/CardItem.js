@@ -10,6 +10,7 @@ import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Link from 'flarum/common/components/Link';
 import { truncate } from 'flarum/common/utils/string';
 import getFirstPostImage from '../utils/getFirstPostImage';
+import CardParticipants from './CardParticipants';
 
 export default class CardItem extends Component {
   oninit(vnode) {
@@ -27,12 +28,10 @@ export default class CardItem extends Component {
 
     const unreadCount = discussion.unreadCount();
     const replyCount = discussion.replyCount() || 0;
-
     const displayCount = unreadCount || replyCount;
 
     const imageUrl = getFirstPostImage(discussion);
 
-    // Extract plain text excerpt from first post
     let excerpt = '';
     try {
       const firstPost = discussion.firstPost();
@@ -67,13 +66,10 @@ export default class CardItem extends Component {
 
           <div className="cardBody">
             {craftBadges(discussion.badges().toArray())}
-
             <div className="cardTags">{craftTags(discussion.tags())}</div>
-
             <h2 className="cardTitle" title={discussion.title()}>
               {truncate(discussion.title(), 80)}
             </h2>
-
             {excerpt ? <p className="cardExcerpt">{excerpt}</p> : ''}
           </div>
 
@@ -86,6 +82,10 @@ export default class CardItem extends Component {
               {icon('fas fa-comment-alt', { className: 'cardRepliesIcon' })}
               <strong className="cardRepliesCount">{displayCount}</strong>
             </span>
+          </div>
+
+          <div className="cardParticipantsRow">
+            {m(CardParticipants, { discussion })}
           </div>
 
         </Link>

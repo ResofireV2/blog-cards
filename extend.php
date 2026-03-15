@@ -2,6 +2,10 @@
 
 use Flarum\Extend;
 use Flarum\Api\Controller\ListDiscussionsController;
+use Resofire\BlogCards\Api\Controller\ListDiscussionParticipantsController;
+use Resofire\BlogCards\Api\Controller\RecalculateParticipantsController;
+use Resofire\BlogCards\Console\PopulateParticipantPreviews;
+use Resofire\BlogCards\Listener\UpdateParticipantPreview;
 
 return [
     (new Extend\Frontend('forum'))
@@ -22,6 +26,52 @@ return [
         ->serializeToForum('resofireBlogCardsFullWidth', 'resofire_blog_cards_fullWidth')
         ->default('resofire_blog_cards_fullWidth', 0),
 
+    // Participant preview: include firstPost and participantPreview on list
     (new Extend\ApiController(ListDiscussionsController::class))
-        ->addInclude('firstPost'),
+        ->addInclude('firstPost')
+        ->addInclude('participantPreview')
+        ->load(['participantPreview']),
+
+    // Participant preview relationship on Discussion model
+    (new Extend\Model(\Flarum\Discussion\Discussion::class))
+        ->relationship('participantPreview', function (\Flarum\Discussion\Discussion $discussion) {
+            return $discussion
+                ->belongsToMany(
+                    \Flarum\User\User::class,
+                    'discussion_participant_previews',
+                    'discussion_id',
+                    'user_id'
+                )
+                ->withPivot('sort_order')
+                ->orderBy('discussion_participant_previews.sort_order');
+        }),
+
+    (new Extend\ApiSerializer(\Flarum\Api\Serializer\DiscussionSerializer::class))
+        ->hasMany('participantPreview', \Flarum\Api\Serializer\UserSerializer::class),
+
+    // API routes for participants
+    (new Extend\Routes('api'))
+        ->get(
+            '/discussions/{id}/participants',
+            'resofire.discussions.participants',
+            ListDiscussionParticipantsController::class
+        )
+        ->get(
+            '/resofire/participants/recalculate',
+            'resofire.participants.recalculate.get',
+            RecalculateParticipantsController::class
+        )
+        ->post(
+            '/resofire/participants/recalculate',
+            'resofire.participants.recalculate',
+            RecalculateParticipantsController::class
+        ),
+
+    // Console command for backfill
+    (new Extend\Console())
+        ->command(PopulateParticipantPreviews::class),
+
+    // Event listener to keep preview table in sync
+    (new Extend\Event())
+        ->subscribe(UpdateParticipantPreview::class),
 ];
