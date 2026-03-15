@@ -332,38 +332,18 @@
 }
 
 .cardTags {
-  margin: 0;
-  display: block;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
   width: 100%;
+  margin: 0 0 0.25rem 0;
   white-space: nowrap;
   overflow: hidden;
-  overflow-x: auto;
   scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(to right, #000 90%, rgba(0,0,0,0) 100%);
 
   &::-webkit-scrollbar {
     display: none;
-  }
-
-  @media tablet {
-    overflow-x:unset;
-  }
-
-  &.overflowing {
-    &:hover {
-      -webkit-mask-image: none;
-      min-width: max-content;
-      animation: scroll 10s linear infinite;
-    }
-  }
-
-  @keyframes scroll {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
   }
 }
 
@@ -547,20 +527,13 @@
     }
 
     .cardTags {
-      margin: 5px 15px 15px;
-      display: block;
-      width: calc(~'100% - 30px');
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 0 0 0.25rem 0;
+      width: 100%;
       font-size: 12px;
-      -webkit-mask-image: linear-gradient(to right, #000 90%, rgba(0,0,0,0) 100%);
-
-      &.overflowing {
-        &:hover {
-          -webkit-mask-image: none;
-          min-width: max-content;
-          animation: scroll 10s linear infinite;
-        }
-      }
-
     }
     
     @keyframes scroll {
