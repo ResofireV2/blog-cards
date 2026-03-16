@@ -119,15 +119,11 @@
   width: 100px;
 }
 
-// Fix TagSelectionModal dropdown list alignment in admin settings context
-.TagSelectionModal {
-  .Modal-footer {
-    .SelectTagList {
-      margin-left: 0;
-      padding-left: 0;
-    }
-  }
-
+// Fix TagSelectionModal dropdown list alignment
+// The form uses display:table with the submit button as a table-cell,
+// which causes Modal-footer (a sibling) to be offset by that cell's width.
+// Overriding the form to use flex eliminates the offset entirely.
+@media @tablet, @desktop, @desktop-hd {
   .TagSelectionModal-form {
     display: flex;
     width: 100%;
@@ -138,6 +134,7 @@
   .TagSelectionModal-form-input {
     display: block;
     flex: 1;
+    width: auto;
   }
 
   .TagSelectionModal-form-submit {
