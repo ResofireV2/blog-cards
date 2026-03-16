@@ -118,3 +118,31 @@
 .DC-Number {
   width: 100px;
 }
+
+// Fix TagSelectionModal dropdown list alignment in admin settings context
+.TagSelectionModal {
+  .Modal-footer {
+    .SelectTagList {
+      margin-left: 0;
+      padding-left: 0;
+    }
+  }
+
+  .TagSelectionModal-form {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .TagSelectionModal-form-input {
+    display: block;
+    flex: 1;
+  }
+
+  .TagSelectionModal-form-submit {
+    display: block;
+    padding-left: 0;
+    flex-shrink: 0;
+  }
+}
