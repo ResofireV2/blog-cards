@@ -23,7 +23,9 @@ return [
         ->serializeToForum('resofireBlogCardsTagIds', 'resofire_blog_cards_tagIds')
         ->default('resofire_blog_cards_tagIds', '[]')
         ->serializeToForum('resofireBlogCardsFullWidth', 'resofire_blog_cards_fullWidth')
-        ->default('resofire_blog_cards_fullWidth', 0),
+        ->default('resofire_blog_cards_fullWidth', 0)
+        ->serializeToForum('resofireBlogCardsShowParticipants', 'resofire_blog_cards_showParticipants')
+        ->default('resofire_blog_cards_showParticipants', 1),
 
     (new Extend\Model(\Flarum\Discussion\Discussion::class))
         ->relationship('participantPreview', function (\Flarum\Discussion\Discussion $discussion) {

@@ -29,6 +29,7 @@ app.initializers.add('resofire/blog-cards', () => {
         onIndexPage: Number(app.forum.attribute('resofireBlogCardsOnIndexPage')) === 1,
         configuredTagIds: JSON.parse(app.forum.attribute('resofireBlogCardsTagIds') || '[]'),
         fullWidth: Number(app.forum.attribute('resofireBlogCardsFullWidth')) === 1,
+        showParticipants: Number(app.forum.attribute('resofireBlogCardsShowParticipants') ?? 1) !== 0,
       };
     }
     return cachedSettings;
@@ -45,7 +46,7 @@ app.initializers.add('resofire/blog-cards', () => {
   });
 
   override(DiscussionList.prototype, 'view', function (original) {
-    const { onIndexPage, configuredTagIds, fullWidth } = getSettings();
+    const { onIndexPage, configuredTagIds, fullWidth, showParticipants } = getSettings();
     const isIndex = app.current.matches(IndexPage);
     const state = this.attrs.state;
     let loading;
@@ -103,7 +104,7 @@ app.initializers.add('resofire/blog-cards', () => {
         <div className={'DiscussionList-discussions flexCard' + (fullWidth ? ' flexCard--full' : '')}>
           {state.getPages().map((pg) => {
             return pg.items.map((discussion) => {
-              return m(CardItem, { discussion });
+              return m(CardItem, { discussion, showParticipants });
             });
           })}
         </div>

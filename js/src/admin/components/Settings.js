@@ -37,6 +37,15 @@ export default class Settings extends ExtensionPage {
               })}
             </div>
 
+            <div className="Section" style="margin-top: 1rem;">
+              {this.buildSettingComponent({
+                type: 'switch',
+                setting: 'resofire_blog_cards_showParticipants',
+                label: app.translator.trans('resofire_blog_cards.admin.settings.showParticipants_label'),
+                help: app.translator.trans('resofire_blog_cards.admin.settings.showParticipants_help'),
+              })}
+            </div>
+
             {this.submitButton()}
 
             <div className="Section" style="margin-top: 2rem;">

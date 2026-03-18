@@ -89,9 +89,11 @@ export default class CardItem extends Component {
             </span>
           </div>
 
-          <div className="cardParticipantsRow">
-            {m(CardParticipants, { discussion })}
-          </div>
+          {this.attrs.showParticipants !== false && (
+            <div className="cardParticipantsRow">
+              {m(CardParticipants, { discussion })}
+            </div>
+          )}
 
         </Link>
       </div>
