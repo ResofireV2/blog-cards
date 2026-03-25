@@ -1,62 +1,83 @@
 <?php
 
-namespace Walsgit\Discussion\Cards\Api\Controllers;
+namespace Resofire\BlogCards\Api\Controllers;
 
-use Flarum\Api\Controller\ShowForumController;
-use Flarum\Foundation\Paths;
+use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManagerStatic as Image;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\MountManager;
+use Intervention\Image\ImageManager;
+use Laminas\Diactoros\Response\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class UploadImageController extends ShowForumController
+/**
+ * POST /api/resofire/blog-cards/upload-image
+ *
+ * Uploads a default card image for use as a placeholder.
+ *
+ * Ported to Flarum 2.x:
+ *   - No longer extends ShowForumController (constructor signature changed in 2.x)
+ *   - Flysystem 1.x Adapter\Local / MountManager replaced with Laravel's Filesystem
+ *     abstraction backed by Flysystem 3.x (League\Flysystem\Local\LocalFilesystemAdapter)
+ *   - Intervention\Image 2.x ImageManagerStatic::make()->encode() replaced with
+ *     ImageManager (3.x) ->read()->scaleDown()->toPng()
+ */
+class UploadImageController implements RequestHandlerInterface
 {
-    protected $settings;
-    protected $paths;
+    protected Filesystem $uploadDir;
 
-    public function __construct(SettingsRepositoryInterface $settings, Paths $paths)
-    {
-        $this->settings = $settings;
-        $this->paths = $paths;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected ImageManager $imageManager,
+        Factory $filesystemFactory
+    ) {
+        // 'flarum-assets' disk maps to the public/assets directory.
+        // This is the same disk used by core's UploadLogoController etc.
+        $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    public function data(ServerRequestInterface $request, Document $document)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request->getAttribute('actor')->assertAdmin();
+        $actor = RequestUtil::getActor($request);
 
-        $file = Arr::get($request->getUploadedFiles(), 'walsgit_discussion_cards_default_image');
-
-        $tmpFile = tempnam($this->paths->storage . '/tmp', 'card_image');
-        $file->moveTo($tmpFile);
-
-        $image = Image::make($tmpFile)
-            ->resize(400, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })->encode('png');
-
-        file_put_contents($tmpFile, $image);
-
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
-            'target' => new Filesystem(new Local($this->paths->public . '/assets')),
-        ]);
-
-        if (($path = $this->settings->get($key = "walsgit_discussion_cards_default_image_path")) && $mount->has($file = "target://$path")) {
-            $mount->delete($file);
+        if (! $actor->isAdmin()) {
+            throw new PermissionDeniedException();
         }
 
-        $uploadName = 'card-image-' . Str::lower(Str::random(8)) . '.png';
+        $file = Arr::get($request->getUploadedFiles(), 'resofire_blog_cards_default_image');
 
-        $mount->move('source://' . pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        // Read the uploaded file via a temp path — Intervention 3.x reads from a URI.
+        $tmpPath = $file->getStream()->getMetadata('uri');
 
-        $this->settings->set($key, $uploadName);
+        // Intervention Image 3.x API: read() → scaleDown() → toPng()
+        // scaleDown keeps aspect ratio and never upscales (equivalent to 1.x upsize constraint).
+        $encodedImage = $this->imageManager
+            ->read($tmpPath)
+            ->scaleDown(width: 400)
+            ->toPng();
 
-        return parent::data($request, $document);
+        $settingKey = 'resofire_blog_cards_default_image_path';
+
+        // Delete the previous image if one exists.
+        if (($existingPath = $this->settings->get($settingKey)) && $this->uploadDir->exists($existingPath)) {
+            $this->uploadDir->delete($existingPath);
+        }
+
+        $uploadName = 'blog-cards-image-' . Str::lower(Str::random(8)) . '.png';
+
+        // Flysystem 3.x / Laravel Filesystem: put() writes content directly.
+        $this->uploadDir->put($uploadName, $encodedImage);
+
+        $this->settings->set($settingKey, $uploadName);
+
+        return new JsonResponse([
+            'status'  => 'success',
+            'path'    => $uploadName,
+        ]);
     }
 }

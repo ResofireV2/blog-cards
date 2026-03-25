@@ -1,7 +1,8 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import Tooltip from 'flarum/common/components/Tooltip';
-import avatar from 'flarum/common/helpers/avatar';
+// Flarum 2.x: avatar() helper REMOVED → Avatar component
+import Avatar from 'flarum/common/components/Avatar';
 import ParticipantsModal from './ParticipantsModal';
 
 export default class CardParticipants extends Component {
@@ -33,7 +34,8 @@ export default class CardParticipants extends Component {
             href={app.route('user', { username: user.slug() })}
             onclick={(e) => e.stopPropagation()}
           >
-            {avatar(user)}
+            {/* 2.x: avatar(user) → m(Avatar, { user }) */}
+            {m(Avatar, { user })}
           </a>
         </Tooltip>
       );

@@ -1,7 +1,11 @@
 <?php
 
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
-use Flarum\Api\Controller\ListDiscussionsController;
+use Flarum\User\User;
 use Resofire\BlogCards\Api\Controller\RecalculateParticipantsController;
 use Resofire\BlogCards\Console\PopulateParticipantPreviews;
 use Resofire\BlogCards\Listener\UpdateParticipantPreview;
@@ -27,11 +31,13 @@ return [
         ->serializeToForum('resofireBlogCardsShowParticipants', 'resofire_blog_cards_showParticipants')
         ->default('resofire_blog_cards_showParticipants', 1),
 
-    (new Extend\Model(\Flarum\Discussion\Discussion::class))
-        ->relationship('participantPreview', function (\Flarum\Discussion\Discussion $discussion) {
+    // Register the participantPreview Eloquent relationship on the Discussion model.
+    // This is identical to 1.x — Extend\Model is unchanged in 2.x.
+    (new Extend\Model(Discussion::class))
+        ->relationship('participantPreview', function (Discussion $discussion) {
             return $discussion
                 ->belongsToMany(
-                    \Flarum\User\User::class,
+                    User::class,
                     'discussion_participant_previews',
                     'discussion_id',
                     'user_id'
@@ -40,26 +46,30 @@ return [
                 ->orderBy('discussion_participant_previews.sort_order');
         }),
 
-    (new Extend\ApiSerializer(\Flarum\Api\Serializer\DiscussionSerializer::class))
-        ->hasMany('participantPreview', \Flarum\Api\Serializer\UserSerializer::class),
-
-    (new Extend\ApiController(ListDiscussionsController::class))
-        ->addInclude('firstPost')
-        ->addInclude('participantPreview')
-        ->load(['participantPreview'])
-        ->prepareDataForSerialization(function ($controller, $data, $request, $document) {
-            // Filter null users from participantPreview to prevent JS store crash
-            // when a participant user has been deleted from the database.
-            foreach ($data as $discussion) {
-                if ($discussion->relationLoaded('participantPreview')) {
-                    $discussion->setRelation(
-                        'participantPreview',
-                        $discussion->participantPreview->filter(fn($user) => $user !== null)
-                    );
-                }
-            }
+    // Flarum 2.x: Extend\ApiController and Extend\ApiSerializer are REMOVED.
+    // Relationships and includes are now declared on the resource via Extend\ApiResource.
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        // Add the participantPreview ToMany relationship field so it can be included.
+        // The null-user filter (previously in prepareDataForSerialization) is handled
+        // by the ->scope() callback on the relationship below.
+        ->fields(fn () => [
+            Schema\Relationship\ToMany::make('participantPreview')
+                ->type('users')
+                ->includable()
+                // Filter null users so a deleted user's missing row does not
+                // crash the JS store — mirrors the 1.x prepareDataForSerialization guard.
+                ->scope(function (\Illuminate\Database\Eloquent\Relations\BelongsToMany $query) {
+                    $query->whereNotNull('users.id');
+                }),
+        ])
+        // Add firstPost and participantPreview to the Index endpoint's default includes
+        // and eager loads. firstPost is already a default include on Show/Create but
+        // NOT on Index in core 2.x — it must be added explicitly.
+        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Endpoint {
+            return $endpoint
+                ->addDefaultInclude(['firstPost', 'participantPreview'])
+                ->eagerLoad(['participantPreview']);
         }),
-
 
     (new Extend\Routes('api'))
         ->get(

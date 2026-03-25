@@ -6,7 +6,12 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 const CHUNK_SIZE = 2000;
 
 export default class RecalculateModal extends Modal {
-  static isDismissible = false;
+  // Flarum 2.x: `static isDismissible = false` no longer exists.
+  // The 2.x Modal uses three separate protected static readonly booleans.
+  // All three must be set to prevent every dismissal vector.
+  static isDismissibleViaCloseButton = false;
+  static isDismissibleViaEscKey = false;
+  static isDismissibleViaBackdropClick = false;
 
   oninit(vnode) {
     super.oninit(vnode);

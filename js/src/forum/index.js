@@ -1,7 +1,13 @@
 import app from 'flarum/forum/app';
-import { Model } from 'flarum/common/extenders';
+// Flarum 2.x: 'flarum/common/extenders' uses a DEFAULT export (an object with Model, Store, etc.)
+// NOT named exports. Importing { Model } would be undefined at runtime.
+// The correct pattern (confirmed from approval, gdpr, tags extensions in 2.x source):
+//   import Extend from 'flarum/common/extenders';  → then use Extend.Model
+import Extend from 'flarum/common/extenders';
 import Discussion from 'flarum/common/models/Discussion';
-import { extend as extendUtil, override } from 'flarum/extend';
+// Flarum 2.x: 'flarum/extend' is NOT a valid module path — the correct path is
+// 'flarum/common/extend' (confirmed in approval/embed/gdpr/tags 2.x source).
+import { extend as extendUtil, override } from 'flarum/common/extend';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import ReplyComposer from 'flarum/forum/components/ReplyComposer';
@@ -11,11 +17,13 @@ import Placeholder from 'flarum/common/components/Placeholder';
 import Button from 'flarum/common/components/Button';
 import CardItem from './components/CardItem';
 import checkOverflowingTags from './helpers/checkOverflowingTags';
-import extCompat from './compat';
-import { compat } from '@flarum/core/forum';
+
+// Flarum 2.x: 'compat' is NOT exported from '@flarum/core/forum' or anywhere in 2.x.
+// Bundled 2.x extensions do not use compat at all.
+// The compat block from 1.x is removed.
 
 export const extend = [
-  new Model(Discussion).hasMany('participantPreview'),
+  new Extend.Model(Discussion).hasMany('participantPreview'),
 ];
 
 app.initializers.add('resofire/blog-cards', () => {
@@ -38,7 +46,7 @@ app.initializers.add('resofire/blog-cards', () => {
   extendUtil(DiscussionList.prototype, 'oncreate', checkOverflowingTags);
   extendUtil(DiscussionList.prototype, 'onupdate', checkOverflowingTags);
 
-  // Include participantPreview on every load-more fetch (guard against duplicates)
+  // Include participantPreview on every load-more fetch (guard against duplicates).
   extendUtil(DiscussionListState.prototype, 'requestParams', function(params) {
     if (!params.include.includes('participantPreview')) {
       params.include.push('participantPreview');
@@ -54,18 +62,20 @@ app.initializers.add('resofire/blog-cards', () => {
     if (state.isInitialLoading() || state.isLoadingNext()) {
       loading = <LoadingIndicator />;
     } else if (state.hasNext()) {
-      loading = Button.component(
-        {
-          className: 'Button',
-          onclick: state.loadNext.bind(state),
-        },
-        app.translator.trans('core.forum.discussion_list.load_more_button')
+      loading = (
+        <Button className="Button" onclick={state.loadNext.bind(state)}>
+          {app.translator.trans('core.forum.discussion_list.load_more_button')}
+        </Button>
       );
     }
 
     if (state.isEmpty()) {
       const text = app.translator.trans('core.forum.discussion_list.empty_text');
-      return <div className="DiscussionList">{m(Placeholder, { text })}</div>;
+      return (
+        <div className="DiscussionList">
+          <Placeholder text={text} />
+        </div>
+      );
     }
 
     const isTagPage = isIndex && !!m.route.param('tags');
@@ -75,7 +85,7 @@ app.initializers.add('resofire/blog-cards', () => {
     if (isMainIndex && !onIndexPage) return original();
 
     // On DiscussionPage sidebar: use the discussion list's own params to determine
-    // which tag is active, same logic as the tag filter check below
+    // which tag is active, same logic as the tag filter check below.
     if (isDiscussionPage) {
       const discussionTagSlug = state.params && state.params.tags;
       if (!discussionTagSlug) return original();
@@ -99,21 +109,41 @@ app.initializers.add('resofire/blog-cards', () => {
       }
     }
 
+    // Flarum 2.x: DiscussionList.view() now wraps items in:
+    //   <ul role="feed" aria-busy={...} className="DiscussionList-discussions">
+    //     <li key=... role="article" aria-setsize="-1" aria-posinset={...}>...</li>
+    //   </ul>
+    // We mirror that structure here so screen readers and CSS behave correctly.
+    // The flexCard layout is applied via CSS on .DiscussionList-discussions itself.
+    const pageSize = state.pageSize || 20;
+
     return (
       <div className={'DiscussionList' + (state.isSearchResults() ? ' DiscussionList--searchResults' : '')}>
-        <div className={'DiscussionList-discussions flexCard' + (fullWidth ? ' flexCard--full' : '')}>
-          {state.getPages().map((pg) => {
-            return pg.items.map((discussion) => {
-              return m(CardItem, { discussion, showParticipants });
-            });
+        <ul
+          role="feed"
+          aria-busy={false}
+          className={'DiscussionList-discussions flexCard' + (fullWidth ? ' flexCard--full' : '')}
+        >
+          {state.getPages().map((pg, pageNum) => {
+            return pg.items.map((discussion, itemNum) => (
+              <li
+                key={discussion.id()}
+                data-id={discussion.id()}
+                role="article"
+                aria-setsize="-1"
+                aria-posinset={pageNum * pageSize + itemNum + 1}
+              >
+                {m(CardItem, { discussion, showParticipants })}
+              </li>
+            ));
           })}
-        </div>
+        </ul>
         <div className="DiscussionList-loadMore">{loading}</div>
       </div>
     );
   });
 
-  // Optimistic avatar append after replying — copied exactly from discussion-participants
+  // Optimistic avatar append after replying — copied exactly from discussion-participants.
   override(ReplyComposer.prototype, 'onsubmit', function(original) {
     const discussion = this.attrs.discussion;
     const discussionId = String(discussion.id());
@@ -165,5 +195,3 @@ app.initializers.add('resofire/blog-cards', () => {
   });
 
 }, -1);
-
-Object.assign(compat, extCompat);

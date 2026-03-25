@@ -1,64 +1,77 @@
 <?php
 
-namespace Walsgit\Discussion\Cards\Api\Controllers;
+namespace Resofire\BlogCards\Api\Controllers;
 
-use Flarum\Api\Controller\ShowForumController;
-use Flarum\Foundation\Paths;
+use Flarum\Http\RequestUtil;
 use Flarum\Tags\Tag;
+use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManagerStatic as Image;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\MountManager;
+use Intervention\Image\ImageManager;
+use Laminas\Diactoros\Response\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class UploadTagImageController extends ShowForumController
+/**
+ * POST /api/resofire/blog-cards/upload-tag-image
+ *
+ * Uploads a per-tag default card image.
+ *
+ * Ported to Flarum 2.x:
+ *   - No longer extends ShowForumController
+ *   - Flysystem 1.x Adapter\Local / MountManager replaced with Laravel Filesystem (Flysystem 3.x)
+ *   - Intervention\Image 3.x API
+ */
+class UploadTagImageController implements RequestHandlerInterface
 {
-    protected $paths;
+    protected Filesystem $uploadDir;
 
-    public function __construct(Paths $paths)
-    {
-        $this->paths = $paths;
+    public function __construct(
+        protected ImageManager $imageManager,
+        Factory $filesystemFactory
+    ) {
+        $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    public function data(ServerRequestInterface $request, Document $document)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $request->getAttribute('actor')->assertAdmin();
+        $actor = RequestUtil::getActor($request);
 
-        $file = Arr::get($request->getUploadedFiles(), 'walsgit_discussion_cards_tag_default_image');
+        if (! $actor->isAdmin()) {
+            throw new PermissionDeniedException();
+        }
+
+        $file  = Arr::get($request->getUploadedFiles(), 'resofire_blog_cards_tag_image');
         $tagId = Arr::get($request->getParsedBody(), 'tagId');
 
         $tag = Tag::findOrFail($tagId);
 
-        $tmpFile = tempnam($this->paths->storage . '/tmp', 'card_image');
-        $file->moveTo($tmpFile);
+        $tmpPath = $file->getStream()->getMetadata('uri');
 
-        $image = Image::make($tmpFile)
-            ->resize(400, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })->encode('png');
+        $encodedImage = $this->imageManager
+            ->read($tmpPath)
+            ->scaleDown(width: 400)
+            ->toPng();
 
-        file_put_contents($tmpFile, $image);
-
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
-            'target' => new Filesystem(new Local($this->paths->public . '/assets')),
-        ]);
-
-        if ($tag->walsgit_discussion_cards_tag_default_image && $mount->has($file = "target://{$tag->walsgit_discussion_cards_tag_default_image}")) {
-            $mount->delete($file);
+        // Delete the previous tag image if one exists.
+        $existingPath = $tag->resofire_blog_cards_tag_image;
+        if ($existingPath && $this->uploadDir->exists($existingPath)) {
+            $this->uploadDir->delete($existingPath);
         }
 
-        $uploadName = 'tag-' . $tagId . '-card-image-' . Str::lower(Str::random(8)) . '.png';
+        $uploadName = 'blog-cards-tag-' . $tagId . '-' . Str::lower(Str::random(8)) . '.png';
 
-        $mount->move('source://' . pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $this->uploadDir->put($uploadName, $encodedImage);
 
-        $tag->walsgit_discussion_cards_tag_default_image = $uploadName;
+        $tag->resofire_blog_cards_tag_image = $uploadName;
         $tag->save();
 
-        return parent::data($request, $document);
+        return new JsonResponse([
+            'status' => 'success',
+            'path'   => $uploadName,
+        ]);
     }
 }

@@ -2,7 +2,8 @@ import Component from 'flarum/common/Component';
 import craftBadges from '../utils/craftBadges';
 import craftTags from '../utils/craftTags';
 import humanTime from 'flarum/common/utils/humanTime';
-import icon from 'flarum/common/helpers/icon';
+// Flarum 2.x: icon() helper REMOVED → Icon component
+import Icon from 'flarum/common/components/Icon';
 import username from 'flarum/common/helpers/username';
 import Dropdown from 'flarum/common/components/Dropdown';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
@@ -83,11 +84,13 @@ export default class ListItem extends Component {
                       <div className="Left">
                         <div className="Repcount">{replyText}</div>
                       </div>
-                      <div className="Arrow">{icon('fas fa-angle-right')}</div>
+                      {/* 2.x: icon('name') → m(Icon, { name: 'name' }) */}
+                      <div className="Arrow">{m(Icon, { name: 'fas fa-angle-right' })}</div>
                     </Link>
                   </div>
                 : <div className="imageLabel discussionReplyCount">
-                    {icon('fas fa-comment', { className: 'labelIcon' })}
+                    {/* 2.x: icon('name', attrs) → m(Icon, { name: 'name', ...attrs }) */}
+                    {m(Icon, { name: 'fas fa-comment', className: 'labelIcon' })}
                     {abbreviateNumber(displayCount)}{unreadCount ? '*' : ''}
                   </div>}
             </div>

@@ -2,9 +2,11 @@ import Component from 'flarum/common/Component';
 import craftBadges from '../utils/craftBadges';
 import craftTags from '../utils/craftTags';
 import humanTime from 'flarum/common/utils/humanTime';
-import icon from 'flarum/common/helpers/icon';
+// Flarum 2.x: icon() helper REMOVED → Icon component
+import Icon from 'flarum/common/components/Icon';
 import username from 'flarum/common/helpers/username';
-import avatar from 'flarum/common/helpers/avatar';
+// Flarum 2.x: avatar() helper REMOVED → Avatar component
+import Avatar from 'flarum/common/components/Avatar';
 import Dropdown from 'flarum/common/components/Dropdown';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Link from 'flarum/common/components/Link';
@@ -80,11 +82,13 @@ export default class CardItem extends Component {
 
           <div className="cardFooter">
             <span className="cardAuthor">
-              {avatar(discussion.user(), { className: 'cardAvatar' })}
+              {/* 2.x: avatar(user, attrs) → m(Avatar, { user, ...attrs }) */}
+              {m(Avatar, { user: discussion.user(), className: 'cardAvatar' })}
               {username(discussion.user())}
             </span>
             <span className="cardReplies">
-              {icon('fas fa-comment-alt', { className: 'cardRepliesIcon' })}
+              {/* 2.x: icon('name', attrs) → m(Icon, { name: 'name', ...attrs }) */}
+              {m(Icon, { name: 'fas fa-comment-alt', className: 'cardRepliesIcon' })}
               <strong className="cardRepliesCount">{displayCount}</strong>
             </span>
           </div>

@@ -2,7 +2,8 @@ import app from 'flarum/forum/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import avatar from 'flarum/common/helpers/avatar';
+// Flarum 2.x: avatar() helper REMOVED → Avatar component
+import Avatar from 'flarum/common/components/Avatar';
 
 const PAGE_SIZE = 10;
 
@@ -53,7 +54,8 @@ export default class ParticipantsModal extends Modal {
       return (
         <li className="ParticipantsModal-item">
           <a href={app.route('user', { username: slug })} onclick={() => app.modal.close()}>
-            {avatar(u)}
+            {/* 2.x: avatar(u) → m(Avatar, { user: u }) */}
+            {m(Avatar, { user: u })}
             <span className="ParticipantsModal-username">{displayName}</span>
           </a>
         </li>

@@ -16,13 +16,24 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        if (!$schema->hasColumn('discussions', 'participant_count')) {
-            $schema->table('discussions', function (Blueprint $table) {
-                // Nullable so existing rows start as NULL until backfilled.
-                // The JS falls back gracefully when the value is absent.
-                $table->unsignedInteger('participant_count')->nullable()->after('comment_count');
-            });
+        // participant_count has been a core Flarum column since the 2018 rename migration
+        // (2018_01_11_155200_change_discussions_rename_columns.php renames participants_count
+        // → participant_count). On Flarum 2.x this column already exists in every installation.
+        //
+        // On Flarum 1.x this extension added the column itself (core did not expose it in the
+        // serializer). On Flarum 2.x core owns the column, casts it, and serializes it — this
+        // extension must NOT attempt to create it again or the migration will throw
+        // "Column 'participant_count' already exists" and block enabling the extension.
+        //
+        // The hasColumn() guard makes this migration safe on both 1.x (adds the column if
+        // somehow absent) and 2.x (no-op because core already provides the column).
+        if ($schema->hasColumn('discussions', 'participant_count')) {
+            return;
         }
+
+        $schema->table('discussions', function (Blueprint $table) {
+            $table->unsignedInteger('participant_count')->nullable()->after('comment_count');
+        });
     },
 
     'down' => function (Builder $schema) {
