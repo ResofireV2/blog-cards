@@ -1,2 +1,455 @@
-(()=>{var t={n:a=>{var r=a&&a.__esModule?()=>a.default:()=>a;return t.d(r,{a:r}),r},d:(a,r)=>{for(var e in r)t.o(r,e)&&!t.o(a,e)&&Object.defineProperty(a,e,{enumerable:!0,get:r[e]})},o:(t,a)=>Object.prototype.hasOwnProperty.call(t,a),r:t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})}},a={};(()=>{"use strict";t.r(a),t.d(a,{extend:()=>$});const r=flarum.core.compat["forum/app"];var e=t.n(r);const s=flarum.core.compat["common/extenders"],o=flarum.core.compat["common/models/Discussion"];var n=t.n(o);const i=flarum.core.compat.extend,c=flarum.core.compat["forum/components/DiscussionList"];var l=t.n(c);const u=flarum.core.compat["forum/states/DiscussionListState"];var d=t.n(u);const p=flarum.core.compat["forum/components/ReplyComposer"];var f=t.n(p);const g=flarum.core.compat["forum/components/IndexPage"];var h=t.n(g);const v=flarum.core.compat["common/components/LoadingIndicator"];var y=t.n(v);const b=flarum.core.compat["common/components/Placeholder"];var P=t.n(b);const N=flarum.core.compat["common/components/Button"];var w=t.n(N);function I(t,a){return I=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,a){return t.__proto__=a,t},I(t,a)}function C(t,a){t.prototype=Object.create(a.prototype),t.prototype.constructor=t,I(t,a)}const x=flarum.core.compat["common/Component"];var B=t.n(x);const _=flarum.core.compat["common/helpers/icon"];var S=t.n(_);const M=flarum.core.compat["common/components/Tooltip"];var L=t.n(M);function D(t){if(t.length)return[m(".cardBadges",[t.map((function(t){return[m(L(),{text:t.attrs.label?t.attrs.label[0]:"",position:"right"},m("span.cardBadge.Badge.Badge--"+t.attrs.type,[S()(t.attrs.icon)]))]}))])]}const O=flarum.core.compat["common/components/Link"];var T=t.n(O);const k=flarum.core.compat["tags/utils/sortTags"];var R=t.n(k);function A(t){if(t)return[R()(t).map((function(t){return[m(T(),{className:"cardTag",style:{backgroundColor:t.color()},href:app.route("tag",{tags:t.slug()})},t.name())]}))]}flarum.core.compat["common/utils/humanTime"];const j=flarum.core.compat["common/helpers/username"];var q=t.n(j);const W=flarum.core.compat["common/helpers/avatar"];var E=t.n(W);const F=flarum.core.compat["common/components/Dropdown"];var H=t.n(F);const U=flarum.core.compat["forum/utils/DiscussionControls"];var G=t.n(U);const z=flarum.core.compat["common/utils/string"],J=flarum.core.compat["common/components/Modal"];var K=function(t){function a(){return t.apply(this,arguments)||this}C(a,t);var r=a.prototype;return r.oninit=function(a){t.prototype.oninit.call(this,a),this._discussionId=a.attrs.discussion.id(),this.participants=[],this.page=0,this.total=null,this.loading=!1,this.loadPage()},r.onbeforeupdate=function(t){var a=t.attrs.discussion.id();a!==this._discussionId&&(this._discussionId=a,this.participants=[],this.page=0,this.total=null,this.loading=!1,this.loadPage())},r.className=function(){return"ParticipantsModal Modal--small"},r.title=function(){var t=null!==this.total?this.total:this.attrs.discussion.attribute("participantCount")||"";return e().translator.trans("resofire_blog_cards.forum.modal_title",{count:t})},r.content=function(){var t=this;if(0===this.participants.length&&this.loading)return m("div",{className:"Modal-body"},y().component());var a=null!==this.total?Math.ceil(this.total/10):null,r=this.page>0,s=null===this.total||10*(this.page+1)<this.total,o=this.participants.map((function(t){var a=t.displayName?t.displayName():t.username?t.username():"",r=t.slug?t.slug():a||"";return m("li",{className:"ParticipantsModal-item"},m("a",{href:e().route("user",{username:r}),onclick:function(){return e().modal.close()}},E()(t),m("span",{className:"ParticipantsModal-username"},a)))})),n=r||s?m("div",{className:"ParticipantsModal-pagination"},w().component({className:"Button",disabled:!r||this.loading,onclick:function(){t.page--,t.loadPage()}},"← Prev"),m("span",{className:"ParticipantsModal-pageInfo"},this.page+1,null!==a?" / "+a:""),w().component({className:"Button Button--primary",disabled:!s||this.loading,onclick:function(){t.page++,t.loadPage()}},"Next →")):null;return m("div",{className:"Modal-body"},this.loading?y().component():null,m("ul",{className:"ParticipantsModal-list"},o),n)},r.loadPage=function(){var t=this;this.loading||(this.loading=!0,m.redraw(),e().request({method:"GET",url:e().forum.attribute("apiUrl")+"/discussions/"+this.attrs.discussion.id()+"/participants",params:{"page[offset]":10*this.page,"page[limit]":10}}).then((function(a){var r={data:(a.data||[]).map((function(t){return{type:"users",id:null!=t.attributes.userId?String(t.attributes.userId):t.id,attributes:{username:t.attributes.username,slug:t.attributes.slug,avatarUrl:t.attributes.avatarUrl,displayName:t.attributes.displayName,color:t.attributes.color}}}))};e().store.pushPayload(r),t.participants=(a.data||[]).map((function(t){var a=null!=t.attributes.userId?t.attributes.userId:t.id;return e().store.getById("users",String(a))})).filter(Boolean),t.total=a.meta&&null!=a.meta.total?a.meta.total:null,t.loading=!1,m.redraw()})).catch((function(){t.loading=!1,m.redraw()})))},a}(t.n(J)()),Q=function(t){function a(){return t.apply(this,arguments)||this}return C(a,t),a.prototype.view=function(){var t=this.attrs.discussion,a=[];try{a=(!!t.participantPreview&&t.participantPreview()||[]).filter(Boolean)}catch(t){return m("[")}if(!a.length)return m("[");var r=null!=t.attribute("participantCount")?t.attribute("participantCount"):0,s=Math.max(0,r-7),o=a.map((function(t){var a=t.displayName?t.displayName():t.username?t.username():"";return m(L(),{text:a,position:"bottom"},m("a",{className:"CardParticipants-avatar",href:e().route("user",{username:t.slug()}),onclick:function(t){return t.stopPropagation()}},E()(t)))})),n=s>0?m("button",{className:"CardParticipants-overflow Button Button--icon Button--flat",type:"button",title:e().translator.trans("resofire_blog_cards.forum.show_all_participants"),onclick:function(a){a.stopPropagation(),a.preventDefault(),e().modal.show(K,{discussion:t})}},"+",s):null;return m("div",{className:"CardParticipants"},o,n)},a}(B()),V=function(t){function a(){return t.apply(this,arguments)||this}C(a,t);var r=a.prototype;return r.oninit=function(a){t.prototype.oninit.call(this,a),this.discussion=this.attrs.discussion},r.view=function(){var t,a=this.discussion,r=Math.min(null!=(t=a.lastPostNumber())?t:0,(a.lastReadPostNumber()||0)+1),e=a.unreadCount(),s=a.replyCount()||0,o=e||s,n=function(t){if(!("_cardImageCache"in t)){t._cardImageCache=null;try{var a=t.firstPost();if(a){var r=a.contentHtml()||"",e=(new DOMParser).parseFromString(r,"text/html").querySelector("img");t._cardImageCache=e&&e.src?e.src:null}}catch(t){}}return t._cardImageCache}(a),i="";try{var c=a.firstPost();if(c){var l=c.contentHtml()||"",u=(new DOMParser).parseFromString(l,"text/html");i=(0,z.truncate)((u.body.textContent||"").trim().replace(/\s+/g," "),260)}}catch(t){}return m("div",{key:a.id(),"data-id":a.id(),className:"CardsListItem Card"+(a.isHidden()?" Hidden":"")+(a.isUnread()?" unread":"")+(a.isRead()?" read":"")},G().controls(a,this).toArray().length?m(H(),{icon:"fas fa-ellipsis-v",className:"DiscussionListItem-controls",buttonClassName:"Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right"},G().controls(a,this).toArray()):"",m(T(),{href:app.route.discussion(a,r),className:"cardLink"},m("div",{className:"cardImageWrap"},n?m("div",{className:"cardImage",style:{backgroundImage:"url("+n+")"},"aria-hidden":"true"}):m("div",{className:"cardImage cardImage--placeholder","aria-hidden":"true"})),m("div",{className:"cardBody"},D(a.badges().toArray()),m("div",{className:"cardTags"},A(a.tags())),m("h2",{className:"cardTitle",title:a.title()},(0,z.truncate)(a.title(),80)),i?m("p",{className:"cardExcerpt"},i):""),m("div",{className:"cardFooter"},m("span",{className:"cardAuthor"},E()(a.user(),{className:"cardAvatar"}),q()(a.user())),m("span",{className:"cardReplies"},S()("fas fa-comment-alt",{className:"cardRepliesIcon"}),m("strong",{className:"cardRepliesCount"},o))),!1!==this.attrs.showParticipants&&m("div",{className:"cardParticipantsRow"},m(Q,{discussion:a}))))},a}(B());function X(){var t=document.querySelectorAll(".CardsListItem.Card .cardLink"),a=document.querySelectorAll(".cardGrid .colSpan-2"),r=function(t,a){t&&(t.scrollWidth>a.clientWidth-30?t.classList.add("overflowing"):t.classList.remove("overflowing"))};t.forEach((function(t){var a=t.querySelector(".cardTags");r(a,t)})),a.forEach((function(t){var a=t.querySelector(".flexBox .cardTags");r(a,t)}))}const Y={"resofire/blog-cards/components/CardItem":V,"resofire/blog-cards/utils/craftTags":A,"resofire/blog-cards/utils/craftBadges":D},Z=flarum.core;var $=[new s.Model(n()).hasMany("participantPreview")];e().initializers.add("resofire/blog-cards",(function(){var t=null;(0,i.extend)(l().prototype,"oncreate",X),(0,i.extend)(l().prototype,"onupdate",X),(0,i.extend)(d().prototype,"requestParams",(function(t){t.include.includes("participantPreview")||t.include.push("participantPreview")})),(0,i.override)(l().prototype,"view",(function(a){var r,s,o=(t||(t={onIndexPage:1===Number(e().forum.attribute("resofireBlogCardsOnIndexPage")),configuredTagIds:JSON.parse(e().forum.attribute("resofireBlogCardsTagIds")||"[]"),fullWidth:1===Number(e().forum.attribute("resofireBlogCardsFullWidth")),showParticipants:0!==Number(null!=(r=e().forum.attribute("resofireBlogCardsShowParticipants"))?r:1)}),t),n=o.onIndexPage,i=o.configuredTagIds,c=o.fullWidth,l=o.showParticipants,u=e().current.matches(h()),d=this.attrs.state;if(d.isInitialLoading()||d.isLoadingNext()?s=m(y(),null):d.hasNext()&&(s=w().component({className:"Button",onclick:d.loadNext.bind(d)},e().translator.trans("core.forum.discussion_list.load_more_button"))),d.isEmpty()){var p=e().translator.trans("core.forum.discussion_list.empty_text");return m("div",{className:"DiscussionList"},m(P(),{text:p}))}var f=u&&!!m.route.param("tags"),g=!u;if(u&&!m.route.param("tags")&&!n)return a();if(g){var v=d.params&&d.params.tags;if(!v)return a();if(i.length>0){var b=e().store.all("tags").find((function(t){return 0===t.slug().localeCompare(v,void 0,{sensitivity:"base"})}));if(!b||!i.includes(b.id()))return a()}}if(i.length>0&&f){var N=m.route.param("tags"),I=e().store.all("tags").find((function(t){return 0===t.slug().localeCompare(N,void 0,{sensitivity:"base"})}));if(!I||!i.includes(I.id()))return a()}return m("div",{className:"DiscussionList"+(d.isSearchResults()?" DiscussionList--searchResults":"")},m("div",{className:"DiscussionList-discussions flexCard"+(c?" flexCard--full":"")},d.getPages().map((function(t){return t.items.map((function(t){return m(V,{discussion:t,showParticipants:l})}))}))),m("div",{className:"DiscussionList-loadMore"},s))})),(0,i.override)(f().prototype,"onsubmit",(function(t){var a=this.attrs.discussion,r=String(a.id()),s=e().session.user;if(s){var o=String(s.id()),n=e().store.createRecord.bind(e().store);e().store.createRecord=function(t,a){e().store.createRecord=n;var s=n(t,a);if("posts"===t){var i=s.save.bind(s);s.save=function(t){return i(t).then((function(t){var a=e().store.getById("discussions",r);if(!a)return t;var s=(a.participantPreview()||[]).filter(Boolean);if(s.length>=6)return t;if(s.some((function(t){return String(t.id())===o})))return t;var n=a.data.relationships=a.data.relationships||{};return n.participantPreview=n.participantPreview||{data:[]},Array.isArray(n.participantPreview.data)||(n.participantPreview.data=[]),n.participantPreview.data.push({type:"users",id:o}),a.freshness=new Date,m.redraw(),t}))}}return s},t()}else t()}))}),-1),Object.assign(Z.compat,Y)})(),module.exports=a})();
-//# sourceMappingURL=forum.js.map
+(()=>{var t={n:o=>{var s=o&&o.__esModule?()=>o.default:()=>o;return t.d(s,{a:s}),s},d:(o,s)=>{for(var n in s)t.o(s,n)&&!t.o(o,n)&&Object.defineProperty(o,n,{enumerable:!0,get:s[n]})},o:(t,o)=>Object.prototype.hasOwnProperty.call(t,o),r:t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})}},o={};(()=>{"use strict";t.r(o);
+
+// ---------------------------------------------------------------------------
+// Imports — flarum.reg.get() directly, no t.n() wrapping.
+// DiscussionList, DiscussionListState, ReplyComposer are chunk modules —
+// reference via string path only (extend/override string-form uses onLoad).
+// ---------------------------------------------------------------------------
+const app              = flarum.reg.get("core","forum/app");
+const extenders        = flarum.reg.get("core","common/extenders");
+const { extend, override } = flarum.reg.get("core","common/extend");
+const Discussion       = flarum.reg.get("core","common/models/Discussion");
+const Component        = flarum.reg.get("core","common/Component");
+const Modal            = flarum.reg.get("core","common/components/Modal");
+const Button           = flarum.reg.get("core","common/components/Button");
+const LoadingIndicator = flarum.reg.get("core","common/components/LoadingIndicator");
+const Tooltip          = flarum.reg.get("core","common/components/Tooltip");
+const Avatar           = flarum.reg.get("core","common/components/Avatar");
+const Icon             = flarum.reg.get("core","common/components/Icon");
+const Link             = flarum.reg.get("core","common/components/Link");
+const Dropdown         = flarum.reg.get("core","common/components/Dropdown");
+const Placeholder      = flarum.reg.get("core","common/components/Placeholder");
+const username         = flarum.reg.get("core","common/helpers/username");
+const humanTime        = flarum.reg.get("core","common/utils/humanTime");
+const abbreviateNumber = flarum.reg.get("core","common/utils/abbreviateNumber");
+const stringUtils      = flarum.reg.get("core","common/utils/string");
+const truncate         = stringUtils ? stringUtils.truncate : (s,n)=>s&&s.length>n?s.slice(0,n)+"...":s;
+const IndexPage        = flarum.reg.get("core","forum/components/IndexPage");
+const DiscussionControls = flarum.reg.get("core","forum/utils/DiscussionControls");
+// sortTags from flarum-tags extension
+const sortTags         = flarum.reg.get("flarum-tags","common/utils/sortTags");
+
+// ---------------------------------------------------------------------------
+// Model extender
+// ---------------------------------------------------------------------------
+const _extend = [(new extenders.Model(Discussion)).hasMany("participantPreview")];
+t.d(o, {extend: () => _extend});
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+function getFirstPostImage(discussion) {
+  if (!("_cardImageCache" in discussion)) {
+    discussion._cardImageCache = null;
+    try {
+      const firstPost = discussion.firstPost();
+      if (firstPost) {
+        const html = firstPost.contentHtml() || "";
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const img = doc.querySelector("img");
+        discussion._cardImageCache = (img && img.src) ? img.src : null;
+      }
+    } catch(e) {}
+  }
+  return discussion._cardImageCache;
+}
+
+function craftBadges(badges) {
+  if (!badges || !badges.length) return null;
+  return m(".cardBadges", badges.map(badge =>
+    m(Tooltip, {text: badge.attrs.label ? badge.attrs.label[0] : "", position: "right"},
+      m("span.cardBadge.Badge.Badge--"+(badge.attrs.type||""), [m(Icon, {name: badge.attrs.icon||""})]))
+  ));
+}
+
+function craftTags(tags) {
+  if (!tags) return null;
+  const sorted = sortTags ? sortTags(tags) : tags;
+  return sorted.map(tag =>
+    m(Link, {
+      className: "cardTag",
+      style: {backgroundColor: tag.color()},
+      href: app.route("tag", {tags: tag.slug()})
+    }, tag.name())
+  );
+}
+
+function checkOverflowingTags() {
+  const cardListItemsOnPrimary = document.querySelectorAll(".CardsListItem.Card .cardLink");
+  const cardListItems = document.querySelectorAll(".cardGrid .colSpan-2");
+  function toggleOverflow(cardTags, cardListItem) {
+    if (!cardTags) return;
+    if (cardTags.scrollWidth > cardListItem.clientWidth - 30) {
+      cardTags.classList.add("overflowing");
+    } else {
+      cardTags.classList.remove("overflowing");
+    }
+  }
+  cardListItemsOnPrimary.forEach(item => toggleOverflow(item.querySelector(".cardTags"), item));
+  cardListItems.forEach(item => toggleOverflow(item.querySelector(".flexBox .cardTags"), item));
+}
+
+// ---------------------------------------------------------------------------
+// ParticipantsModal
+// ---------------------------------------------------------------------------
+const PAGE_SIZE = 10;
+
+class ParticipantsModal extends Modal {
+  oninit(vnode) {
+    super.oninit(vnode);
+    this._discussionId = vnode.attrs.discussion.id();
+    this.participants  = [];
+    this.page          = 0;
+    this.total         = null;
+    this.loading       = false;
+    this.loadPage();
+  }
+
+  onbeforeupdate(vnode) {
+    const newId = vnode.attrs.discussion.id();
+    if (newId !== this._discussionId) {
+      this._discussionId = newId;
+      this.participants  = [];
+      this.page          = 0;
+      this.total         = null;
+      this.loading       = false;
+      this.loadPage();
+    }
+  }
+
+  className() { return "ParticipantsModal Modal--small"; }
+
+  title() {
+    const c = this.total !== null ? this.total : (this.attrs.discussion.attribute("participantCount") || "");
+    return app.translator.trans("resofire_blog_cards.forum.modal_title", {count: c});
+  }
+
+  content() {
+    if (this.participants.length === 0 && this.loading) {
+      return m("div", {className:"Modal-body"}, m(LoadingIndicator));
+    }
+
+    const hasPrev = this.page > 0;
+    const hasNext = this.total === null || ((this.page + 1) * PAGE_SIZE) < this.total;
+    const totalPages = this.total !== null ? Math.ceil(this.total / PAGE_SIZE) : null;
+
+    const items = this.participants.map(u => {
+      const displayName = u.displayName ? u.displayName() : (u.username ? u.username() : "");
+      const slug = u.slug ? u.slug() : (displayName || "");
+      return m("li", {className:"ParticipantsModal-item"},
+        m("a", {href: app.route("user", {username: slug}), onclick: () => app.modal.close()},
+          m(Avatar, {user: u}),
+          m("span", {className:"ParticipantsModal-username"}, displayName)
+        )
+      );
+    });
+
+    const pagination = (hasPrev || hasNext)
+      ? m("div", {className:"ParticipantsModal-pagination"},
+          m(Button, {
+            className:"Button", disabled: !hasPrev || this.loading,
+            onclick: () => { this.page--; this.loadPage(); }
+          }, "\u2190 Prev"),
+          m("span", {className:"ParticipantsModal-pageInfo"},
+            (this.page+1) + (totalPages !== null ? " / "+totalPages : "")),
+          m(Button, {
+            className:"Button Button--primary", disabled: !hasNext || this.loading,
+            onclick: () => { this.page++; this.loadPage(); }
+          }, "Next \u2192")
+        )
+      : null;
+
+    return m("div", {className:"Modal-body"},
+      this.loading ? m(LoadingIndicator) : null,
+      m("ul", {className:"ParticipantsModal-list"}, items),
+      pagination
+    );
+  }
+
+  loadPage() {
+    if (this.loading) return;
+    this.loading = true;
+    m.redraw();
+    app.request({
+      method: "GET",
+      url: app.forum.attribute("apiUrl") + "/discussions/" + this.attrs.discussion.id() + "/participants",
+      params: {"page[offset]": this.page * PAGE_SIZE, "page[limit]": PAGE_SIZE},
+    }).then(r => {
+      const remapped = {
+        data: (r.data || []).map(i => ({
+          type: "users",
+          id: i.attributes.userId != null ? String(i.attributes.userId) : i.id,
+          attributes: {
+            username:    i.attributes.username,
+            slug:        i.attributes.slug,
+            avatarUrl:   i.attributes.avatarUrl,
+            displayName: i.attributes.displayName,
+            color:       i.attributes.color,
+          },
+        })),
+      };
+      app.store.pushPayload(remapped);
+      this.participants = (r.data || []).map(i => {
+        const uid = i.attributes.userId != null ? i.attributes.userId : i.id;
+        return app.store.getById("users", String(uid));
+      }).filter(Boolean);
+      this.total   = (r.meta && r.meta.total != null) ? r.meta.total : null;
+      this.loading = false;
+      m.redraw();
+    }).catch(() => { this.loading = false; m.redraw(); });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CardParticipants
+// ---------------------------------------------------------------------------
+class CardParticipants extends Component {
+  view() {
+    const discussion = this.attrs.discussion;
+    let preview = [];
+    try {
+      const result = discussion.participantPreview ? discussion.participantPreview() : false;
+      preview = (result || []).filter(Boolean);
+    } catch(e) { return m("["); }
+    if (!preview.length) return m("[");
+
+    const total = discussion.attribute("participantCount") != null
+      ? discussion.attribute("participantCount") : 0;
+    const overflowN = Math.max(0, total - 7);
+
+    const avatars = preview.map(user => {
+      const name = user.displayName ? user.displayName() : (user.username ? user.username() : "");
+      return m(Tooltip, {text: name, position: "bottom"},
+        m("a", {
+          className: "CardParticipants-avatar",
+          href: app.route("user", {username: user.slug()}),
+          onclick: e => e.stopPropagation()
+        }, m(Avatar, {user}))
+      );
+    });
+
+    const overflowBtn = overflowN > 0
+      ? m("button", {
+          className: "CardParticipants-overflow Button Button--icon Button--flat",
+          type: "button",
+          title: app.translator.trans("resofire_blog_cards.forum.show_all_participants"),
+          onclick: e => {
+            e.stopPropagation();
+            e.preventDefault();
+            app.modal.show(ParticipantsModal, {discussion});
+          }
+        }, "+"+overflowN)
+      : null;
+
+    return m("div", {className:"CardParticipants"}, avatars, overflowBtn);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CardItem
+// ---------------------------------------------------------------------------
+class CardItem extends Component {
+  oninit(vnode) {
+    super.oninit(vnode);
+    this.discussion = this.attrs.discussion;
+  }
+
+  view() {
+    const discussion  = this.discussion;
+    const jumpTo      = Math.min(discussion.lastPostNumber() || 0, (discussion.lastReadPostNumber() || 0) + 1);
+    const unreadCount = discussion.unreadCount();
+    const replyCount  = discussion.replyCount() || 0;
+    const displayCount= unreadCount || replyCount;
+    const imageUrl    = getFirstPostImage(discussion);
+
+    let excerpt = "";
+    try {
+      const firstPost = discussion.firstPost();
+      if (firstPost) {
+        const html = firstPost.contentHtml() || "";
+        const doc  = new DOMParser().parseFromString(html, "text/html");
+        excerpt    = truncate((doc.body.textContent || "").trim().replace(/\s+/g, " "), 260);
+      }
+    } catch(e) {}
+
+    return m("div", {
+      key: discussion.id(),
+      "data-id": discussion.id(),
+      className: "CardsListItem Card"
+        + (discussion.isHidden() ? " Hidden" : "")
+        + (discussion.isUnread() ? " unread" : "")
+        + (discussion.isRead()   ? " read"   : ""),
+    },
+      DiscussionControls.controls(discussion, this).toArray().length
+        ? m(Dropdown, {
+            icon: "fas fa-ellipsis-v",
+            className: "DiscussionListItem-controls",
+            buttonClassName: "Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right",
+          }, DiscussionControls.controls(discussion, this).toArray())
+        : "",
+
+      m(Link, {href: app.route.discussion(discussion, jumpTo), className: "cardLink"},
+        m("div", {className:"cardImageWrap"},
+          imageUrl
+            ? m("div", {className:"cardImage", style:"background-image:url("+imageUrl+")", "aria-hidden":"true"})
+            : m("div", {className:"cardImage cardImage--placeholder", "aria-hidden":"true"})
+        ),
+        m("div", {className:"cardBody"},
+          craftBadges(discussion.badges().toArray()),
+          m("div", {className:"cardTags"}, craftTags(discussion.tags())),
+          m("h2", {className:"cardTitle", title:discussion.title()},
+            truncate(discussion.title(), 80)),
+          excerpt ? m("p", {className:"cardExcerpt"}, excerpt) : ""
+        ),
+        m("div", {className:"cardFooter"},
+          m("span", {className:"cardAuthor"},
+            m(Avatar, {user: discussion.user(), className:"cardAvatar"}),
+            username(discussion.user())
+          ),
+          m("span", {className:"cardReplies"},
+            m(Icon, {name:"fas fa-comment-alt", className:"cardRepliesIcon"}),
+            m("strong", {className:"cardRepliesCount"}, displayCount)
+          )
+        ),
+        this.attrs.showParticipants !== false
+          ? m("div", {className:"cardParticipantsRow"}, m(CardParticipants, {discussion}))
+          : null
+      )
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Initializer
+// ---------------------------------------------------------------------------
+app.initializers.add("resofire-blog-cards", () => {
+
+  let cachedSettings = null;
+  function getSettings() {
+    if (!cachedSettings) {
+      cachedSettings = {
+        onIndexPage:     Number(app.forum.attribute("resofireBlogCardsOnIndexPage")) === 1,
+        configuredTagIds:JSON.parse(app.forum.attribute("resofireBlogCardsTagIds") || "[]"),
+        fullWidth:       Number(app.forum.attribute("resofireBlogCardsFullWidth")) === 1,
+        showParticipants:Number(app.forum.attribute("resofireBlogCardsShowParticipants") ?? 1) !== 0,
+      };
+    }
+    return cachedSettings;
+  }
+
+  // DiscussionList, DiscussionListState, ReplyComposer are chunk modules —
+  // use string-path form so extend/override defers via flarum.reg.onLoad.
+  extend("flarum/forum/components/DiscussionList", "oncreate", checkOverflowingTags);
+  extend("flarum/forum/components/DiscussionList", "onupdate", checkOverflowingTags);
+
+  extend("flarum/forum/states/DiscussionListState", "requestParams", function(params) {
+    if (!params.include.includes("participantPreview")) {
+      params.include.push("participantPreview");
+    }
+  });
+
+  override("flarum/forum/components/DiscussionList", "view", function(original) {
+    const {onIndexPage, configuredTagIds, fullWidth, showParticipants} = getSettings();
+    const isIndex = app.current.matches(IndexPage);
+    const state   = this.attrs.state;
+
+    let loading;
+    if (state.isInitialLoading() || state.isLoadingNext()) {
+      loading = m(LoadingIndicator);
+    } else if (state.hasNext()) {
+      loading = m(Button, {className:"Button", onclick: state.loadNext.bind(state)},
+        app.translator.trans("core.forum.discussion_list.load_more_button"));
+    }
+
+    if (state.isEmpty()) {
+      return m("div", {className:"DiscussionList"},
+        m(Placeholder, {text: app.translator.trans("core.forum.discussion_list.empty_text")}));
+    }
+
+    const isTagPage       = isIndex && !!m.route.param("tags");
+    const isMainIndex     = isIndex && !m.route.param("tags");
+    const isDiscussionPage= !isIndex;
+
+    if (isMainIndex && !onIndexPage) return original();
+
+    if (isDiscussionPage) {
+      const discussionTagSlug = state.params && state.params.tags;
+      if (!discussionTagSlug) return original();
+      if (configuredTagIds.length > 0) {
+        const currentTag = app.store.all("tags").find(
+          t => t.slug().localeCompare(discussionTagSlug, undefined, {sensitivity:"base"}) === 0);
+        if (!currentTag || !configuredTagIds.includes(currentTag.id())) return original();
+      }
+    }
+
+    if (configuredTagIds.length > 0 && isTagPage) {
+      const currentSlug = m.route.param("tags");
+      const currentTag  = app.store.all("tags").find(
+        t => t.slug().localeCompare(currentSlug, undefined, {sensitivity:"base"}) === 0);
+      if (!currentTag || !configuredTagIds.includes(currentTag.id())) return original();
+    }
+
+    const pageSize = state.pageSize || 20;
+    return m("div", {
+      className: "DiscussionList" + (state.isSearchResults() ? " DiscussionList--searchResults" : "")
+    },
+      m("ul", {
+        role: "feed",
+        "aria-busy": false,
+        className: "DiscussionList-discussions flexCard" + (fullWidth ? " flexCard--full" : ""),
+      },
+        state.getPages().map((pg, pageNum) =>
+          pg.items.map((discussion, itemNum) =>
+            m("li", {
+              key: discussion.id(),
+              "data-id": discussion.id(),
+              role: "article",
+              "aria-setsize": "-1",
+              "aria-posinset": pageNum * pageSize + itemNum + 1,
+            }, m(CardItem, {discussion, showParticipants}))
+          )
+        )
+      ),
+      m("div", {className:"DiscussionList-loadMore"}, loading)
+    );
+  });
+
+  override("flarum/forum/components/ReplyComposer", "onsubmit", function(original) {
+    const discussion   = this.attrs.discussion;
+    const discussionId = String(discussion.id());
+    const currentUser  = app.session.user;
+    if (!currentUser) { original(); return; }
+    const currentUserId = String(currentUser.id());
+    const originalCreateRecord = app.store.createRecord.bind(app.store);
+
+    app.store.createRecord = function(type, data) {
+      app.store.createRecord = originalCreateRecord;
+      const record = originalCreateRecord(type, data);
+      if (type === "posts") {
+        const originalSave = record.save.bind(record);
+        record.save = function(saveData) {
+          return originalSave(saveData).then(function(post) {
+            const disc = app.store.getById("discussions", discussionId);
+            if (!disc) return post;
+            const preview = (disc.participantPreview() || []).filter(Boolean);
+            if (preview.length >= 6) return post;
+            const alreadyIn = preview.some(u => String(u.id()) === currentUserId);
+            if (alreadyIn) return post;
+            const rel = disc.data.relationships = disc.data.relationships || {};
+            rel.participantPreview = rel.participantPreview || {data:[]};
+            if (!Array.isArray(rel.participantPreview.data)) rel.participantPreview.data = [];
+            rel.participantPreview.data.push({type:"users", id:currentUserId});
+            disc.freshness = new Date();
+            m.redraw();
+            return post;
+          });
+        };
+      }
+      return record;
+    };
+    original();
+  });
+
+}, -1);
+
+})(),module.exports=o})();

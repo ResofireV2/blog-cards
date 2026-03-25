@@ -1,2 +1,200 @@
-(()=>{var t={n:r=>{var e=r&&r.__esModule?()=>r.default:()=>r;return t.d(e,{a:e}),e},d:(r,e)=>{for(var o in e)t.o(e,o)&&!t.o(r,o)&&Object.defineProperty(r,o,{enumerable:!0,get:e[o]})},o:(t,r)=>Object.prototype.hasOwnProperty.call(t,r)};(()=>{"use strict";const r=flarum.core.compat["admin/app"];var e=t.n(r);function o(t,r){return o=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,r){return t.__proto__=r,t},o(t,r)}function a(t,r){t.prototype=Object.create(r.prototype),t.prototype.constructor=t,o(t,r)}const n=flarum.core.compat["admin/components/ExtensionPage"];var s=t.n(n);const i=flarum.core.compat["common/components/Button"];var l=t.n(i);const c=flarum.core.compat["common/components/Modal"];var d=t.n(c);const u=flarum.core.compat["common/components/LoadingIndicator"];var p=t.n(u),g=function(t){function r(){return t.apply(this,arguments)||this}a(r,t);var o=r.prototype;return o.oninit=function(r){t.prototype.oninit.call(this,r),this.total=0,this.processed=0,this.running=!0,this.complete=!1,this.errorMsg=null,this.chunkLog=[],this.totalElapsed=null,this.run()},o.className=function(){return"RecalculateModal Modal--small"},o.title=function(){return e().translator.trans("resofire_blog_cards.admin.recalculate_modal_title")},o.content=function(){var t=this.total>0?Math.round(this.processed/this.total*100):0,r=this.running?m("div",{className:"Alert Alert--warning",style:"margin-bottom:1rem;display:flex;align-items:center;gap:8px;"},m("span",{className:"fas fa-exclamation-triangle",style:"flex-shrink:0;"}),m("span",null,e().translator.trans("resofire_blog_cards.admin.recalculate_modal_warning"))):null,o=m("div",{style:"background:var(--control-bg);border-radius:6px;overflow:hidden;height:18px;margin-bottom:0.75rem;"},m("div",{style:"width:"+t+"%;height:100%;background:var(--primary-color);transition:width 0.3s ease;"})),a=this.complete?m("p",{style:"text-align:center;margin:0;color:var(--success-color,#57a957);font-weight:600;"},e().translator.trans("resofire_blog_cards.admin.recalculate_modal_complete",{total:this.total})):this.errorMsg?m("p",{style:"text-align:center;margin:0;color:#c0392b;"},this.errorMsg):m("p",{style:"text-align:center;margin:0;color:var(--muted-color);"},e().translator.trans("resofire_blog_cards.admin.recalculate_modal_progress",{processed:this.processed,total:this.total})," ("+t+"%)"),n=this.running?m("div",{style:"display:flex;justify-content:center;margin-top:1.25rem;"},p().component({size:"small",display:"inline"})):m("div",{style:"display:flex;justify-content:center;margin-top:1.25rem;"},l().component({className:"Button Button--primary",onclick:function(){return e().modal.close()}},e().translator.trans("resofire_blog_cards.admin.recalculate_modal_close"))),s=this.chunkLog.length>0?m("div",{style:"margin-top:1rem;max-height:160px;overflow-y:auto;font-size:0.8rem;font-family:monospace;background:var(--control-bg);border-radius:4px;padding:0.5rem 0.75rem;"},this.chunkLog.map((function(t,r){return m("div",{key:r,style:"padding:1px 0;color:var(--muted-color);"},"Chunk "+(r+1)+": discussions "+t.from+"–"+t.to+" — "+t.secs+"s")})),this.complete&&null!==this.totalElapsed?m("div",{style:"margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid var(--control-border-color,#ddd);font-weight:600;color:var(--body-color);"},"Total: "+this.totalElapsed+"s"):null):null;return m("div",{className:"Modal-body",style:"padding:1.5rem;"},r,o,a,s,n)},o.run=function(){var t=this,r=e().forum.attribute("apiUrl")+"/resofire/blog-cards/recalculate",o={errorHandler:function(t){throw t}},a=0;e().request(Object.assign({method:"GET",url:r},o)).then((function(n){if(t.total=n&&n.total||0,m.redraw(),0===t.total)return t.running=!1,t.complete=!0,t.totalElapsed="0.0",void m.redraw();var s=function(n){return e().request(Object.assign({method:"POST",url:r,body:{offset:n,limit:2e3}},o)).then((function(r){var e=r&&r.recomputed||0,o=r&&r.duration_ms||0;a+=o;var i=n+e;t.processed=Math.min(i,t.total);var l=n+1,c=Math.min(n+e,t.total),d=(o/1e3).toFixed(1);if(t.chunkLog.push({from:l,to:c,secs:d}),m.redraw(),i<t.total)return s(n+2e3);t.processed=t.total,t.running=!1,t.complete=!0,t.totalElapsed=(a/1e3).toFixed(1),m.redraw()}))};return s(0)})).catch((function(r){t.running=!1,t.errorMsg=r&&r.message||e().translator.trans("resofire_blog_cards.admin.recalculate_error"),m.redraw()}))},r}(d());g.isDismissible=!1;var h=function(t){function r(){return t.apply(this,arguments)||this}return a(r,t),r.prototype.content=function(){return m("div",{className:"BlogCardsSettings"},m("div",{className:"container"},m("div",{className:"BlogCardsSettings--content"},m("div",{className:"Section",style:"margin-top: 1.5rem;"},this.buildSettingComponent({type:"switch",setting:"resofire_blog_cards_onIndexPage",label:e().translator.trans("resofire_blog_cards.admin.settings.onIndexPage_label"),help:e().translator.trans("resofire_blog_cards.admin.settings.onIndexPage_help")})),m("div",{className:"Section",style:"margin-top: 1rem;"},this.buildSettingComponent({type:"flarum-tags.select-tags",setting:"resofire_blog_cards_tagIds",label:e().translator.trans("resofire_blog_cards.admin.settings.tagIds_label"),help:e().translator.trans("resofire_blog_cards.admin.settings.tagIds_help")})),m("div",{className:"Section",style:"margin-top: 1rem;"},this.buildSettingComponent({type:"switch",setting:"resofire_blog_cards_fullWidth",label:e().translator.trans("resofire_blog_cards.admin.settings.fullWidth_label"),help:e().translator.trans("resofire_blog_cards.admin.settings.fullWidth_help")})),m("div",{className:"Section",style:"margin-top: 1rem;"},this.buildSettingComponent({type:"switch",setting:"resofire_blog_cards_showParticipants",label:e().translator.trans("resofire_blog_cards.admin.settings.showParticipants_label"),help:e().translator.trans("resofire_blog_cards.admin.settings.showParticipants_help")})),this.submitButton(),m("div",{className:"Section",style:"margin-top: 2rem;"},m("h3",null,e().translator.trans("resofire_blog_cards.admin.tools_heading")),m("p",{className:"helpText"},e().translator.trans("resofire_blog_cards.admin.recalculate_help")),m("div",{className:"Form-group"},l().component({className:"Button Button--primary",onclick:function(){return e().modal.show(g)}},e().translator.trans("resofire_blog_cards.admin.recalculate_button")))))))},r}(s());e().initializers.add("resofire/blog-cards",(function(){e().extensionData.for("resofire-blog-cards").registerPage(h)}))})(),module.exports={}})();
-//# sourceMappingURL=admin.js.map
+(()=>{var t={n:o=>{var s=o&&o.__esModule?()=>o.default:()=>o;return t.d(s,{a:s}),s},d:(o,s)=>{for(var n in s)t.o(s,n)&&!t.o(o,n)&&Object.defineProperty(o,n,{enumerable:!0,get:s[n]})},o:(t,o)=>Object.prototype.hasOwnProperty.call(t,o),r:t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})}},o={};(()=>{"use strict";t.r(o);
+
+const app              = flarum.reg.get("core","admin/app");
+const Button           = flarum.reg.get("core","common/components/Button");
+const Modal            = flarum.reg.get("core","common/components/Modal");
+const LoadingIndicator = flarum.reg.get("core","common/components/LoadingIndicator");
+const ExtensionPage    = flarum.reg.get("core","admin/components/ExtensionPage");
+const extenders        = flarum.reg.get("core","common/extenders");
+
+const CHUNK_SIZE = 2000;
+
+class RecalculateModal extends Modal {
+  static get isDismissibleViaCloseButton()  { return false; }
+  static get isDismissibleViaEscKey()       { return false; }
+  static get isDismissibleViaBackdropClick(){ return false; }
+
+  oninit(vnode) {
+    super.oninit(vnode);
+    this.total        = 0;
+    this.processed    = 0;
+    this.running      = true;
+    this.complete     = false;
+    this.errorMsg     = null;
+    this.chunkLog     = [];
+    this.totalElapsed = null;
+    this.run();
+  }
+
+  className() { return "RecalculateModal Modal--small"; }
+
+  title() {
+    return app.translator.trans("resofire_blog_cards.admin.recalculate_modal_title");
+  }
+
+  content() {
+    const pct = this.total > 0 ? Math.round((this.processed / this.total) * 100) : 0;
+
+    const warning = this.running
+      ? m("div", {className:"Alert Alert--warning", style:"margin-bottom:1rem;display:flex;align-items:center;gap:8px;"},
+          m("span", {className:"fas fa-exclamation-triangle", style:"flex-shrink:0;"}),
+          m("span", app.translator.trans("resofire_blog_cards.admin.recalculate_modal_warning")))
+      : null;
+
+    const progressBar = m("div", {style:"background:var(--control-bg);border-radius:6px;overflow:hidden;height:18px;margin-bottom:0.75rem;"},
+      m("div", {style:"width:"+pct+"%;height:100%;background:var(--primary-color);transition:width 0.3s ease;"})
+    );
+
+    const statusLine = this.complete
+      ? m("p", {style:"text-align:center;margin:0;color:var(--success-color,#57a957);font-weight:600;"},
+          app.translator.trans("resofire_blog_cards.admin.recalculate_modal_complete", {total:this.total}))
+      : this.errorMsg
+        ? m("p", {style:"text-align:center;margin:0;color:#c0392b;"}, this.errorMsg)
+        : m("p", {style:"text-align:center;margin:0;color:var(--muted-color);"},
+            app.translator.trans("resofire_blog_cards.admin.recalculate_modal_progress",
+              {processed:this.processed, total:this.total}),
+            " ("+pct+"%)");
+
+    const action = this.running
+      ? m("div", {style:"display:flex;justify-content:center;margin-top:1.25rem;"},
+          m(LoadingIndicator, {size:"small", display:"inline"}))
+      : m("div", {style:"display:flex;justify-content:center;margin-top:1.25rem;"},
+          m(Button, {
+            className:"Button Button--primary",
+            onclick: () => app.modal.close()
+          }, app.translator.trans("resofire_blog_cards.admin.recalculate_modal_close")));
+
+    const chunkLog = this.chunkLog.length > 0
+      ? m("div", {style:"margin-top:1rem;max-height:160px;overflow-y:auto;font-size:0.8rem;font-family:monospace;background:var(--control-bg);border-radius:4px;padding:0.5rem 0.75rem;"},
+          this.chunkLog.map((entry, i) =>
+            m("div", {key:i, style:"padding:1px 0;color:var(--muted-color);"},
+              "Chunk "+(i+1)+": discussions "+entry.from+"-"+entry.to+" - "+entry.secs+"s"
+            )
+          ),
+          (this.complete && this.totalElapsed !== null)
+            ? m("div", {style:"margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid var(--control-border-color,#ddd);font-weight:600;color:var(--body-color);"},
+                "Total: "+this.totalElapsed+"s")
+            : null
+        )
+      : null;
+
+    return m("div", {className:"Modal-body", style:"padding:1.5rem;"},
+      warning, progressBar, statusLine, chunkLog, action
+    );
+  }
+
+  run() {
+    const recalcUrl     = app.forum.attribute("apiUrl") + "/resofire/blog-cards/recalculate";
+    const suppressAlert = {errorHandler: (e) => { throw e; }};
+    let totalMs = 0;
+
+    app.request(Object.assign({method:"GET", url:recalcUrl}, suppressAlert))
+      .then(r => {
+        this.total = (r && r.total) || 0;
+        m.redraw();
+
+        if (this.total === 0) {
+          this.running      = false;
+          this.complete     = true;
+          this.totalElapsed = "0.0";
+          m.redraw();
+          return;
+        }
+
+        const runChunk = (offset) =>
+          app.request(Object.assign({
+            method:"POST", url:recalcUrl,
+            body:{offset:offset, limit:CHUNK_SIZE}
+          }, suppressAlert)).then(d => {
+            const recomputed = (d && d.recomputed) || 0;
+            const chunkMs    = (d && d.duration_ms)  || 0;
+            totalMs += chunkMs;
+            const done = offset + recomputed;
+            this.processed = Math.min(done, this.total);
+            this.chunkLog.push({
+              from: offset + 1,
+              to:   Math.min(offset + recomputed, this.total),
+              secs: (chunkMs / 1000).toFixed(1)
+            });
+            m.redraw();
+
+            if (done < this.total) return runChunk(offset + CHUNK_SIZE);
+
+            this.processed    = this.total;
+            this.running      = false;
+            this.complete     = true;
+            this.totalElapsed = (totalMs / 1000).toFixed(1);
+            m.redraw();
+          });
+
+        return runChunk(0);
+      })
+      .catch(e => {
+        this.running  = false;
+        this.errorMsg = (e && e.message) ||
+          app.translator.trans("resofire_blog_cards.admin.recalculate_error");
+        m.redraw();
+      });
+  }
+}
+
+class BlogCardsSettingsPage extends ExtensionPage {
+  content() {
+    const settings = app.registry.getSettings(this.extension.id);
+
+    return m("div", {className:"ExtensionPage-settings"},
+      m("div", {className:"container"},
+        settings
+          ? m("div", null,
+              settings.map(s => this.buildSettingComponent(s)),
+              m("div", {className:"Form-group Form-controls"}, this.submitButton()),
+              m("div", {className:"Form-group", style:"margin-top:2rem;"},
+                m("h3", null, app.translator.trans("resofire_blog_cards.admin.tools_heading")),
+                m("p", {className:"helpText"},
+                  app.translator.trans("resofire_blog_cards.admin.recalculate_help")),
+                m(Button, {
+                  className:"Button Button--primary",
+                  onclick: () => app.modal.show(RecalculateModal)
+                }, app.translator.trans("resofire_blog_cards.admin.recalculate_button"))
+              )
+            )
+          : m("h3", {className:"ExtensionPage-subHeader"},
+              app.translator.trans("core.admin.extension.no_settings"))
+      )
+    );
+  }
+}
+
+t.d(o, {extend: () => _extend});
+const _extend = [
+  (new extenders.Admin())
+    .setting(() => ({
+      type:    "switch",
+      setting: "resofire_blog_cards_onIndexPage",
+      label:   app.translator.trans("resofire_blog_cards.admin.settings.onIndexPage_label"),
+      help:    app.translator.trans("resofire_blog_cards.admin.settings.onIndexPage_help"),
+    }), 100)
+    .setting(() => ({
+      type:    "flarum-tags.select-tags",
+      setting: "resofire_blog_cards_tagIds",
+      label:   app.translator.trans("resofire_blog_cards.admin.settings.tagIds_label"),
+      help:    app.translator.trans("resofire_blog_cards.admin.settings.tagIds_help"),
+    }), 90)
+    .setting(() => ({
+      type:    "switch",
+      setting: "resofire_blog_cards_fullWidth",
+      label:   app.translator.trans("resofire_blog_cards.admin.settings.fullWidth_label"),
+      help:    app.translator.trans("resofire_blog_cards.admin.settings.fullWidth_help"),
+    }), 80)
+    .setting(() => ({
+      type:    "switch",
+      setting: "resofire_blog_cards_showParticipants",
+      label:   app.translator.trans("resofire_blog_cards.admin.settings.showParticipants_label"),
+      help:    app.translator.trans("resofire_blog_cards.admin.settings.showParticipants_help"),
+    }), 70)
+    .page(BlogCardsSettingsPage),
+];
+
+app.initializers.add("resofire-blog-cards", () => {});
+
+})(),module.exports=o})();
