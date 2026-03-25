@@ -2,7 +2,13 @@
     "name": "resofire/blog-cards",
     "description": "Display the discussion list as blog-style cards",
     "type": "flarum-extension",
-    "keywords": ["flarum", "extension", "discussion", "cards", "blog"],
+    "keywords": [
+        "flarum",
+        "extension",
+        "discussion",
+        "cards",
+        "blog"
+    ],
     "license": "MIT",
     "authors": [
         {
