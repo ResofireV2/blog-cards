@@ -196,10 +196,27 @@
 
 .cardTag {
   display: inline;
-  color: white;
+  background-color: var(--tag-bg);
+  color: var(--tag-color);
   padding: 2px 10px 2px 10px;
+  font-weight: 600;
+  text-decoration: none;
 
-  &:hover {
+  &--colored {
+    background-color: var(--tag-bg);
+    color: var(--contrast-color, var(--body-bg));
+
+    &:hover,
+    &:focus {
+      background-color: var(--tag-bg);
+      color: var(--contrast-color, var(--body-bg));
+      filter: brightness(0.95);
+      text-decoration: none;
+    }
+  }
+
+  &:hover,
+  &:focus {
     filter: opacity(0.8);
     text-decoration: none;
   }

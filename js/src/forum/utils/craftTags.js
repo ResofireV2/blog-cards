@@ -7,9 +7,11 @@ import sortTags from 'ext:flarum/tags/utils/sortTags';
 export default function craftTags(tags) {
   if (tags) {
     return [sortTags(tags).map(function (tag) {
+      const color = tag.color();
+      const isColored = !!color;
       return [
-        <Link className="cardTag"
-              style={{backgroundColor: tag.color()}}
+        <Link className={'cardTag' + (isColored ? ' cardTag--colored' : '')}
+              style={isColored ? {'--tag-bg': color} : {}}
               href={app.route('tag', {tags: tag.slug()})}>
           {tag.name()}
         </Link>
